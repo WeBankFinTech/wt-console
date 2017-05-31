@@ -1,6 +1,6 @@
 {
   "name": "@unpourtous/tianyan-react-native",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "React Native component for both Android and iOS",
   "main": "index.js",
   "scripts": {
