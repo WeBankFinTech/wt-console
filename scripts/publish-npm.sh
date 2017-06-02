@@ -11,6 +11,6 @@ git commit
 cp -r README.md ./lib
 cd lib
 version=v$1
-git tag v$version
+git tag $version
 npm publish --access public --verbose
 git push --tag
