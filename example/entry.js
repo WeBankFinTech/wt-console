@@ -8,21 +8,11 @@ import React, { Component } from 'react'
 
 import TianYan from '@unpourtous/tianyan-react-native'
 
-const {
-  EntryIcon,
-  Dashboard,
-  Console
-} = TianYan
-
 export default class SimpleApp extends Component {
   constructor (props) {
     super(props)
 
-    Dashboard.register(Console, {
-      logServerUrl: 'http://23lab.com:3000/v1/log',
-      maxLogLine: 1000
-    })
-    Dashboard.setup()
+    TianYan.init()
   }
 
   render () {
@@ -31,15 +21,26 @@ export default class SimpleApp extends Component {
         <Text style={styles.welcome}>
           Welcome to tianyan-react-native Demo
         </Text>
-        <TouchableHighlight onPress={this._onPress.bind(this)}>
-          <Text style={styles.instructions}>
+        <TouchableHighlight
+          style={{
+            borderWidth: 1,
+            borderColor: '#AAA',
+            padding: 5,
+            margin: 5
+          }}
+          onPress={this._onPress.bind(this)}>
+          <Text style={[styles.instructions]}>
             First, Click Me to generate log
           </Text>
 
         </TouchableHighlight>
 
         <Text>Then click the floating icon to see your log</Text>
-        <EntryIcon />
+
+        <TianYan options={{
+          logServerUrl: 'http://23lab.com:3000/v1/log',
+          maxLogLine: 1000
+        }}/>
       </View>
     )
   }
