@@ -11,8 +11,6 @@ import TianYan from '@unpourtous/tianyan-react-native'
 export default class SimpleApp extends Component {
   constructor (props) {
     super(props)
-
-    TianYan.init()
   }
 
   render () {
