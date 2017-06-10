@@ -9,10 +9,6 @@ import React, { Component } from 'react'
 import TianYan from '@unpourtous/tianyan-react-native'
 
 export default class SimpleApp extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <View style={styles.container}>
@@ -38,15 +34,15 @@ export default class SimpleApp extends Component {
         <TianYan options={{
           logServerUrl: 'http://23lab.com:3000/v1/log',
           maxLogLine: 1000
-        }}/>
+        }} />
       </View>
     )
   }
 
   _onPress () {
-    for (let i = 0; i < 1000; i++) {
-      console.log('oonPress onPress onPress onPress onPress onPress onPress nPress ' + new Date().getTime())
-    }
+    console.log('oonPress ' + new Date().getTime())
+    console.log('%s %s', 'hello', 'world')
+    console.log('abcd %%f %%ss %o %d %i', '100.3', 'foo', {a: 1, b: '1'}, 100, 100.10, 1000, {a: 1})
   }
 }
 
