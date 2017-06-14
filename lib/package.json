@@ -1,6 +1,6 @@
 {
   "name": "@unpourtous/tianyan-react-native",
-  "version": "1.1.8",
+  "version": "1.1.18",
   "description": "React Native component for both Android and iOS",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,6 @@
     "react-native": "^0.40.0"
   },
   "dependencies": {
-    "console-like-string-format": "^1.0.1",
-    "sprintf-js": "^1.1.1"
+    "console-like-string-format": "^1.0.11"
   }
 }
