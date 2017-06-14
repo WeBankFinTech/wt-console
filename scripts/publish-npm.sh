@@ -1,16 +1,11 @@
 #!/bin/bash
 
-# if [ $# -lt 1 ];then
-# echo 'Your should input your version numver'
-# exit
-# fi
+cp README.md ./lib
 
-git add -A
-git commit
-
-cp -r README.md ./lib
 cd lib
-version=v$1
-git tag $version
+version=`npm version patch`
 npm publish --access public --verbose
+cd -
+
+git tag $version
 git push --tag
