@@ -8,7 +8,7 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 2. 结合 [tianyan-server](https://github.com/UnPourTous/tianyan-server) 可以很方便的实现日志上传功能。
 
 # 基本用法
-将`TianYan`嵌入到App最外层View中。
+将`TianYan`嵌入到App最外层View中，具体用法可以参考`exmaple`目录
 ```
 <AppRootView>
   <AppBody />
