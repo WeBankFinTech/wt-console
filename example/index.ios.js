@@ -8,7 +8,7 @@ import React, { Component } from 'react'
 import {
   AppRegistry
 } from 'react-native'
-import Entry from './entry'
+import Entry from './AppEntry'
 
 export default class example extends Component {
   render () {

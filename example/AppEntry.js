@@ -8,7 +8,7 @@ import React, { Component } from 'react'
 
 import TianYan from '@unpourtous/tianyan-react-native'
 
-export default class SimpleApp extends Component {
+export default class extends Component {
   render () {
     return (
       <View style={styles.container}>
@@ -24,17 +24,21 @@ export default class SimpleApp extends Component {
           }}
           onPress={this._onPress.bind(this)}>
           <Text style={[styles.instructions]}>
-            First, Click Me to generate log
+            Click me to generate log
           </Text>
 
         </TouchableHighlight>
 
         <Text>Then click the floating icon to see your log</Text>
 
-        <TianYan options={{
-          logServerUrl: 'http://23lab.com:3000/v1/log',
-          maxLogLine: 1000
-        }} />
+        <TianYan
+          options={{
+            logServerUrl: 'http://23lab.com:3000/v1/log',
+            maxLogLine: 1000,
+            ignoreFilter: function () {
+              return (arguments && typeof arguments[0] === 'string' && arguments[0].indexOf('ignored log') === 0)
+            }
+          }}/>
       </View>
     )
   }
@@ -42,7 +46,10 @@ export default class SimpleApp extends Component {
   _onPress () {
     console.log('oonPress ' + new Date().getTime())
     console.log('%s %s', 'hello', 'world')
-    console.log('abcd %%f %%ss %o %d %i', '100.3', 'foo', {a: 1, b: '1'}, 100, 100.10, 1000, {a: 1})
+    console.log('%o %i', {a: 1, b: 2, c: {a: 'foo', d: 'bar'}}, 1000)
+
+    console.log('ignored log, this will not display in tianyan dashboard')
+    console.log('x ignored log, this will display in tianyan dashboard')
   }
 }
 
