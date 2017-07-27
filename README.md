@@ -27,3 +27,6 @@ export default class SimpleApp extends Component {
 
 ## 实现效果
 
+![image](https://user-images.githubusercontent.com/1309744/28671050-d65857e2-730d-11e7-8ada-1eba740956ea.png)
+![image](https://user-images.githubusercontent.com/1309744/28671072-ee5c40c4-730d-11e7-9713-68feba36d734.png)
+![image](https://user-images.githubusercontent.com/1309744/28671081-f43b0c32-730d-11e7-9da9-08e6e8623520.png)
