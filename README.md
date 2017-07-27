@@ -27,6 +27,15 @@ export default class SimpleApp extends Component {
 
 ## 实现效果
 
+1. 浮标为日志入口
 ![image](https://user-images.githubusercontent.com/1309744/28671050-d65857e2-730d-11e7-8ada-1eba740956ea.png)
+
+2. 查看日志
 ![image](https://user-images.githubusercontent.com/1309744/28671072-ee5c40c4-730d-11e7-9713-68feba36d734.png)
+
+3. 上传日志并且获取日志ID
 ![image](https://user-images.githubusercontent.com/1309744/28671081-f43b0c32-730d-11e7-9da9-08e6e8623520.png)
+
+4. 到日志管理端查看日志
+![image](https://user-images.githubusercontent.com/1309744/28671162-45f42158-730e-11e7-8bd7-c97a6a8b6f49.png)
+
