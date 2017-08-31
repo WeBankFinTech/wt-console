@@ -1,7 +1,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.14.1'
+}
 buildscript {
     repositories {
+        maven {
+            url "http://maven.aliyun.com/nexus/content/groups/public/"
+        }
         jcenter()
     }
     dependencies {
@@ -15,10 +21,13 @@ buildscript {
 allprojects {
     repositories {
         mavenLocal()
-        jcenter()
+        maven {
+            url "http://maven.aliyun.com/nexus/content/groups/public/"
+        }
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
         }
+        jcenter()
     }
 }

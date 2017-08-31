@@ -2,7 +2,7 @@ import {
   Text,
   View,
   StyleSheet,
-  TouchableHighlight
+  TouchableOpacity
 } from 'react-native'
 import React, { Component } from 'react'
 
@@ -15,7 +15,7 @@ export default class extends Component {
         <Text style={styles.welcome}>
           Welcome to tianyan-react-native Demo
         </Text>
-        <TouchableHighlight
+        <TouchableOpacity
           style={{
             borderWidth: 1,
             borderColor: '#AAA',
@@ -27,13 +27,13 @@ export default class extends Component {
             Click me to generate log
           </Text>
 
-        </TouchableHighlight>
+        </TouchableOpacity>
 
         <Text>Then click the floating icon to see your log</Text>
 
         <TianYan
           options={{
-            logServerUrl: 'http://23lab.com:3000/v1/log',
+            logServerUrl: 'http://hk.23lab.com:3000/v1/log',
             maxLogLine: 1000,
             ignoreFilter: function () {
               return (arguments && typeof arguments[0] === 'string' && arguments[0].indexOf('ignored log') === 0)
@@ -47,6 +47,8 @@ export default class extends Component {
     console.log('oonPress ' + new Date().getTime())
     console.log('%s %s', 'hello', 'world')
     console.log('%o %i', {a: 1, b: 2, c: {a: 'foo', d: 'bar'}}, 1000)
+    console.log(undefined, 'second params')
+    console.log()
 
     console.log('ignored log, this will not display in tianyan dashboard')
     console.log('x ignored log, this will display in tianyan dashboard')
