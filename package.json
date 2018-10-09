@@ -12,8 +12,7 @@
     "start": "node_modules/react-native/packager/packager.sh --config ./packager-config.js",
     "test": "jest"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "jest": {
     "preset": "react-native"
   },
@@ -32,6 +31,8 @@
     "eslint-plugin-react": "^6.10.3",
     "eslint-plugin-standard": "^2.3.1",
     "standard": "^9.0.0",
+    "react": "16.0.0-alpha.6",
+    "moment": "^2.22.2",
     "react-native": "^0.43.3"
   },
   "peerDependencies": {
