@@ -3,3 +3,7 @@ node_modules/
 .idea/
 yarn.lock
 npm-debug.log
+__tests__/
+_cacache/
+_logs/
+index-v5/

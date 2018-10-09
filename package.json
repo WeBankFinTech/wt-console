@@ -1,0 +1,42 @@
+{
+  "name": "@unpourtous/tianyan-react-native",
+  "version": "1.1.38",
+  "description": "React Native component for both Android and iOS",
+  "main": "library/index.js",
+  "keywords": [
+    "react-native"
+  ],
+  "author": "erichua",
+  "license": "MIT",
+  "scripts": {
+    "start": "node_modules/react-native/packager/packager.sh --config ./packager-config.js",
+    "test": "jest"
+  },
+  "dependencies": {
+  },
+  "jest": {
+    "preset": "react-native"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "babel-jest": "18.0.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react-native": "1.9.1",
+    "eslint": "^3.16.1",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-config-standard-jsx": "^4.0.1",
+    "eslint-plugin-angular": "^2.3.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-node": "^4.2.2",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-react": "^6.10.3",
+    "eslint-plugin-standard": "^2.3.1",
+    "standard": "^9.0.0",
+    "react-native": "^0.43.3"
+  },
+  "peerDependencies": {
+    "react": "16.0.0-alpha.6",
+    "react-native": "^0.40.0",
+    "moment": "^2.22.2"
+  }
+}
