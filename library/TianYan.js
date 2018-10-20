@@ -14,7 +14,6 @@ import React, { Component } from 'react'
 import Dashboard from './Dashboard'
 import Console from './plugins/console/Console'
 
-const {height} = Dimensions.get('window')
 export default class TianYan extends Component {
   static propTypes = {
     options: React.PropTypes.object.isRequired
@@ -27,10 +26,16 @@ export default class TianYan extends Component {
     iconSize: 50
   }
 
+  state = {
+    showDashboard: true
+  }
+
   constructor (props) {
     super(props)
     const self = this
-    Dashboard.register(Console, this.props.options)
+    Dashboard.register(Console, {...this.props.options, tabLabel: '日志'})
+    Dashboard.register(Console, {...this.props.options, tabLabel: '性能'})
+    Dashboard.register(Console, {...this.props.options, tabLabel: '其他'})
     Dashboard.setup()
 
     this._toggleDashboard = this._toggleDashboard.bind(this)
@@ -40,123 +45,152 @@ export default class TianYan extends Component {
         x: width - this.size.iconSize,
         y: 300
       }),
-      showDashboard: false
+      expendAnim: new Animated.Value(0)
     }
     this.panResponder = PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => {
+        return gestureState.dx < 1 || gestureState.dy < 1
+      },
       onStartShouldSetPanResponderCapture: () => false,
       onPanResponderGrant: (e, gestureState) => {
-        this.startX = self.state.pan.x._value
-        this.startY = self.state.pan.y._value
+        this.state.pan.setOffset({
+          x: self.state.pan.x._value,
+          y: self.state.pan.y._value
+        })
       },
-      onPanResponderMove: (e, gesture) => {
-        self.state.pan.x.setValue(this.startX + gesture.dx)
-        self.state.pan.y.setValue(this.startY + gesture.dy)
-        // return Animated.event([null, {
-        //   dx: self.state.pan.x,
-        //   dy: self.state.pan.y
-        // }])
+      onStartShouldSetPanResponder: (e, gestureState) => {
+        return true
       },
+      onPanResponderMove: Animated.event([null, {
+        dx: self.state.pan.x,
+        dy: self.state.pan.y
+      }]),
       onPanResponderRelease: (e, gesture) => {
-        console.log('onPanResponderRelease', self.state.pan)
+        console.log(gesture)
+        self.state.pan.flattenOffset()
+
         let toX = 0
         if ((this.state.pan.x._value + self.size.iconSize / 2) > width / 2) {
           toX = width - self.size.iconSize
         }
 
-        Animated.spring(
-          this.state.pan,
+        Animated.spring(            // Step 1
+          this.state.pan,         // Step 2
           {
             toValue: {
               x: toX,
-              y: self.state.pan.y._value > (height - self.size.iconSize) ? (height - self.size.iconSize) : self.state.pan.y._value
+              y: self.state.pan.y._value
             }
-          }
-        ).start()
+          }     // Step 3
+        ).start(() => {
+        })
       }
     })
   }
 
   _toggleDashboard () {
     this.setState({
-      showDashboard: !this.state.showDashboard
+      isAnimationRunning: true
     })
+    if (!this.state.showDashboard) {
+      this.state.expendAnim.setValue(0)
+      Animated.timing(this.state.expendAnim, {
+        duration: 200,
+        toValue: 100
+      }).start(() => {
+        this.setState({
+          isAnimationRunning: false
+        })
+      })
+      this.setState({
+        showDashboard: !this.state.showDashboard
+      })
+    } else {
+      this.state.expendAnim.setValue(100)
+      Animated.timing(this.state.expendAnim, {
+        duration: 200,
+        toValue: 0
+      }).start(() => {
+        this.setState({
+          showDashboard: !this.state.showDashboard,
+          isAnimationRunning: false
+        })
+      })
+    }
   }
 
-  // shouldComponentUpdate () {
-  //   return false
-  // }
-
   render () {
-    if (this.state.showDashboard) {
-      return (
-        <Animated.View
+    return (
+      <Animated.View
+        {...(this.state.showDashboard ? {} : this.panResponder.panHandlers)}
+        style={[
+          {...this.state.pan.getLayout()},
+          {
+            position: 'absolute',
+            width: this.size.iconSize,
+            height: this.size.iconSize,
+            borderRadius: this.size.iconSize / 2
+          },
+          this.state.isAnimationRunning ? {
+            borderRadius: this.state.expendAnim.interpolate({
+              inputRange: [0, 100],
+              outputRange: [this.size.iconSize / 2, 0],
+            }),
+            top: this.state.expendAnim.interpolate({
+              inputRange: [0, 100],
+              outputRange: [this.state.pan.getLayout().top._value, 0],
+            }),
+            left: this.state.expendAnim.interpolate({
+              inputRange: [0, 100],
+              outputRange: [this.state.pan.getLayout().left._value, 0],
+            }),
+            width: this.state.expendAnim.interpolate({
+              inputRange: [0, 100],
+              outputRange: [this.size.iconSize, Dimensions.get('window').width],
+            }),
+            height: this.state.expendAnim.interpolate({
+              inputRange: [0, 100],
+              outputRange: [this.size.iconSize, Dimensions.get('window').height],
+            })
+          } : {}
+        ]}>
+
+
+        {this.state.showDashboard ? <Animated.View
           style={{
             position: 'absolute',
-            zIndex: 999,
+            alignSelf: 'stretch',
+            opacity: this.state.expendAnim.interpolate({
+              inputRange: [0, 40, 100],
+              outputRange: [0, 0, 1],
+            }),
             top: 0,
+            bottom: 0,
             left: 0,
             right: 0,
-            bottom: 0,
-            width: Dimensions.get('window').width,
-            height: Dimensions.get('window').height,
+            flex: 1,
+            flexDirection: 'column'
           }}>
           <Dashboard onPressClose={this._toggleDashboard} />
-        </Animated.View>
-      )
-    }
-
-    if (this.state.pan.getLayout().left._value > (Dimensions.get('window').width - this.size.iconSize)) {
-      this.state.pan.getLayout().left.setValue(Dimensions.get('window').width - this.size.iconSize)
-    }
-    if (this.state.pan.getLayout().left._value < 0) {
-      this.state.pan.getLayout().left.setValue(0)
-    }
-    if (this.state.pan.getLayout().top._value > (Dimensions.get('window').height - this.size.iconSize)) {
-      this.state.pan.getLayout().top.setValue(Dimensions.get('window').height - this.size.iconSize)
-    }
-    if (this.state.pan.getLayout().top._value < 0) {
-      this.state.pan.getLayout().top.setValue(300)
-    }
-
-    return (
-      <Animated.View {...this.panResponder.panHandlers} style={[
-        this.state.pan.getLayout()
-        , {
-          position: 'absolute'
-        }]}>
-        <TouchableOpacity
-          onPress={this._toggleDashboard}>
-          <View style={{
-            height: this.size.iconSize,
-            width: this.size.iconSize,
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            overflow: 'hidden'
-          }}>
-            <View style={{
+        </Animated.View> :
+          <TouchableOpacity
+            style={{
+              borderRadius: this.size.iconSize / 2,
+            }}
+            onPress={this._toggleDashboard}>
+            <Animated.Image style={{
+              opacity: this.state.expendAnim.interpolate({
+                inputRange: [0, 40, 100],
+                outputRange: [1, 0, 0],
+              }),
               width: this.size.iconSize,
               height: this.size.iconSize,
               borderRadius: this.size.iconSize / 2,
-              borderWidth: 1,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
+              borderWidth: 0.5,
+              borderColor: '#EEE',
               backgroundColor: '#FFF'
-            }}>
-              <Image
-                style={{
-                  width: this.size.iconSize,
-                  height: this.size.iconSize,
-                  borderRadius: this.size.iconSize / 2,
-                }}
-                resizeMode={Image.resizeMode.stretch}
-                source={require('./images/tianyan-icon.png')} />
-            </View>
-          </View>
-        </TouchableOpacity>
+            }} resizeMode={'contain'} source={require('./images/tianyan-icon.png')} />
+          </TouchableOpacity>}
       </Animated.View>
     )
   }

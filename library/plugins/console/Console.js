@@ -3,7 +3,7 @@ import {
   View,
   TouchableOpacity,
   PixelRatio,
-  FlatList
+  ListView
 } from 'react-native'
 
 import React from 'react'
@@ -12,7 +12,6 @@ import Loading from './components/Loading'
 import ResultBoard from './components/ResultBoard'
 import format from './utils/format'
 
-let logIndexId = 0
 export default class Console extends Plugin {
   static name = 'Console'
 
@@ -50,7 +49,7 @@ export default class Console extends Plugin {
 
       const formattedLog = {
         ts: new Date().getTime(),
-        msg: arguments,
+        msg: format(...arguments),
         type: Console.LOG_TYPE.DEBUG,
         caller
       }
@@ -66,7 +65,6 @@ export default class Console extends Plugin {
 
   // TODO 用环形链表来实现这里的功能
   static addLog (formattedLog) {
-    formattedLog.id = logIndexId++
     const {maxLogLine = 1000} = Console.options
     if (Console.cachedLogList && Console.cachedLogList.length > maxLogLine) {
       Console.cachedLogList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
@@ -124,37 +122,47 @@ export default class Console extends Plugin {
   }
 
   render () {
-    // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
     const {logServerUrl = ''} = Console.options || {}
     return (
-      <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#FFFFFF'
+        }}>
         <View style={{flex: 1}}>
-          <FlatList
-            removeClippedSubviews={true}
-            onEndReachedThreshold={100}
-            data={this.state.logList}
-            keyExtractor={(item) => 'key_' + item.id}
-            renderItem={({item: log}) => {
-              const formattedDate = require('moment')(log.ts).format('HH:mm:ss')
+          <ListView
+            dataSource={ds.cloneWithRows(this.state.logList)}
+            enableEmptySections
+            renderRow={(log, index) => {
+              const date = new Date(log.ts)
+              const formattedDate = `${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
               return (
-                <View
-                  style={{
-                    borderBottomWidth: 1 / PixelRatio.get(),
-                    paddingTop: 5,
-                    paddingBottom: 5,
-                    flexDirection: 'row',
-                    paddingLeft: 5,
-                    borderColor: Console.theme.borderColorGray
+                <TouchableOpacity
+                  underlayColor={'#EEE'}
+                  onPress={() => {
+                    this._onPressLog.bind(this)(log)
                   }}>
-                  <Text style={{flex: 1}}>
-                    <Text
-                      style={{color: 'green'}}>{log.id} {formattedDate}</Text>
-                    <Text
-                      style={{flex: 1}}>{format(...log.msg)}</Text>
-                    <Text
-                      style={{color: '#AAA'}}> {log.caller || ''}</Text>
-                  </Text>
-                </View>
+                  <View
+                    style={{
+                      borderBottomWidth: 1 / PixelRatio.get(),
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                      flexDirection: 'row',
+                      paddingLeft: 5,
+                      backgroundColor: index % 2 === 0 ? '#fff' : '#f0f0f0',
+                      borderColor: Console.theme.borderColorGray
+                    }}>
+                    <Text style={{flex: 1}}>
+                      <Text
+                        style={{color: 'green'}}>{formattedDate}</Text>
+                      <Text
+                        style={{flex: 1}}>{log.msg}</Text>
+                      <Text
+                        style={{color: '#AAA'}}> {log.caller || ''}</Text>
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               )
             }}
           />
@@ -170,6 +178,7 @@ export default class Console extends Plugin {
           }}>
           <TouchableOpacity
             onPress={this._onPressUpload.bind(this)}
+            underlayColor={'#EEE'}
             style={{
               flex: 1
             }}>

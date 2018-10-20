@@ -1,12 +1,15 @@
 import {
   Text,
   View,
-  TouchableHighlight,
-  Image
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  PixelRatio
 } from 'react-native'
 
 import React, { Component } from 'react'
 import Console from './plugins/console/Console'
+import ScrollableTabView from 'react-native-scrollable-tab-view'
 
 export default class Dashboard extends Component {
   static propTypes = {
@@ -31,67 +34,37 @@ export default class Dashboard extends Component {
 
   render () {
     return (
-      <View
-        style={{
-          marginTop: 18,
-          flexDirection: 'column',
-          flex: 1,
-          justifyContent: 'flex-start'
+      <View style={{
+        flex: 1
+      }}>
+        <View style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          height: 75
         }}>
-        {/* Tabs */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            backgroundColor: '#F3F3F3',
-            height: 45
-          }}>
-          {
-            Dashboard.registeredPlugins.map((item, index) => {
-              return (
-                <View
-                  key={index}
-                  style={{
-                    borderBottomWidth: 3,
-                    borderBottomColor: '#3E82F7',
-                    justifyContent: 'center',
-                    paddingLeft: 5,
-                    paddingRight: 5,
-                    alignItems: 'center'
-                  }}>
-                  <Text style={{
-                    color: '#5A5A5A',
-                    textAlign: 'center',
-                  }}>{item.plugin.name || ''}</Text>
-                </View>
-              )
-            })
-          }
-          <View style={{flex: 1}} />
-
-          <TouchableHighlight underlayColor={'#F0F0F0'} onPress={this.props.onPressClose}>
+          <TouchableOpacity style={{
+            flex: 1
+          }} onPress={this.props.onPressClose}>
             <View style={{
-              justifyContent: 'center',
-              paddingLeft: 20,
-              paddingRight: 10,
               flex: 1
             }}>
-              <Image style={{width: 30, height: 30}} source={require('./images/close.png')} />
             </View>
-          </TouchableHighlight>
+          </TouchableOpacity>
         </View>
-
-        <View
-          style={{
-            justifyContent: 'flex-start',
-            flex: 1
-          }}>
+        <ScrollableTabView
+          initialPage={0}
+          locked
+          tabBarBackgroundColor="#fff"
+          tabBarTextStyle={{
+            fontSize: 15,
+            lineHeight: 18}}
+        >
           {
             /* body */
             Dashboard.registeredPlugins.map((item, index) => {
               return (
                 <View
                   key={index}
+                  tabLabel={item.options.tabLabel}
                   style={{
                     flex: 1,
                     alignSelf: 'stretch'
@@ -101,7 +74,7 @@ export default class Dashboard extends Component {
               )
             })
           }
-        </View>
+        </ScrollableTabView>
       </View>
     )
   }
