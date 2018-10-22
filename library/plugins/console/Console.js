@@ -134,7 +134,7 @@ export default class Console extends Plugin {
           <ListView
             dataSource={ds.cloneWithRows(this.state.logList)}
             enableEmptySections
-            renderRow={(log, index) => {
+            renderRow={(log, sectionId, rowId) => {
               const date = new Date(log.ts)
               const formattedDate = `${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
               return (
@@ -150,7 +150,7 @@ export default class Console extends Plugin {
                       paddingBottom: 5,
                       flexDirection: 'row',
                       paddingLeft: 5,
-                      backgroundColor: index % 2 === 0 ? '#fff' : '#f0f0f0',
+                      backgroundColor: rowId % 2 === 0 ? '#fff' : '#f0f0f0',
                       borderColor: Console.theme.borderColorGray
                     }}>
                     <Text style={{flex: 1}}>
