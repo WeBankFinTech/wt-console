@@ -1,3 +1,16 @@
+const strongJSONStringify = (obj) => {
+  const seen = []
+  return JSON.stringify(obj, (key, val) => {
+    if (val !== null && typeof val === 'object') {
+      if (seen.indexOf(val) >= 0) {
+        return
+      }
+      seen.push(val)
+    }
+    return val
+  })
+}
+
 export default function format () {
   const argumentArray = Array.from(arguments)
   const firstArg = argumentArray.shift(1)
@@ -6,7 +19,7 @@ export default function format () {
     const tmp = Array.from(arguments)
 
     return tmp.reduce((result, item) => {
-      return result + ', ' + JSON.stringify(item)
+      return result + ', ' + strongJSONStringify(item)
     }, '')
   }
 
@@ -25,7 +38,7 @@ export default function format () {
         } else if ('s' === token) {
           resultString += argumentArray.shift()
         } else if ('o' === token.toLowerCase()) {
-          resultString += JSON.stringify(argumentArray.shift())
+          resultString += strongJSONStringify(argumentArray.shift())
         } else if ('i' === token || 'd' === token) {
           let val = ''
           try {
