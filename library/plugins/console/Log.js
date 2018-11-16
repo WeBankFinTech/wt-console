@@ -68,7 +68,7 @@ export default class Log extends Plugin {
     } else if (isString(log)) {
       element = objectKey
         ? <Text><Text style={{color: '#800080'}}>{objectKey}</Text>: <Text style={{color: '#8B0000'}}>"{log}"</Text></Text>
-        : <Text style={{color: '#8B0000'}}>"{log}"</Text>
+        : <Text style={{color: '#8B0000'}}>{log}</Text>
     } else if (isNumber(log)) {
       element = objectKey
         ? <Text><Text style={{color: '#800080'}}>{objectKey}</Text>: <Text style={{color: '#4169E1'}}>{log}</Text></Text>
@@ -81,7 +81,7 @@ export default class Log extends Plugin {
     } else if (isBoolean(log)) {
       element = <Text style={{color: '#800080'}}>{JSON.stringify(log)}</Text>
     }
-    return <View key={key}>
+    return <View style={{flex: 1}} key={key}>
       {element}
     </View>
   }
@@ -91,7 +91,7 @@ export default class Log extends Plugin {
     if (json) {
       let preview = json.substr(0, 26)
       outer = showType ? getObjName(log) : ''
-      if (json.length > 26) {
+      if (json.length > 40) {
         preview += '...'
       }
       outer += ' ' + preview
@@ -105,8 +105,15 @@ export default class Log extends Plugin {
         let simple = this._renderSimple(item, false)
         let _element = this.state.logExpandable ? null : this._renderLogForEachType(item, 'renderlogObj')
         return <TouchableOpacity key={'touchablerendertb' + index} onPress={() => { this.toggleLogExpandable() }}>
-          {this.state.logExpandable ? <View><Text> ▸ {simple}</Text></View> : <View><Text> ▾ {simple}</Text></View>}
-          {_element}
+          {this.state.logExpandable
+            ? <View><Text> ▸ {simple}</Text></View>
+            : <View style={{
+              flexDirection: 'row',
+              flex: 1
+            }}>
+              <View style={{width: 100}}><Text> ▾ {simple}</Text></View>
+              {_element}
+            </View>}
         </TouchableOpacity>
       })
     }
@@ -128,12 +135,14 @@ export default class Log extends Plugin {
     let simple = this._renderSimple(callstackArr)
     let element = this.state.callStackExpandable ? null : this._renderLogForEachType(callstackArr)
     return <TouchableOpacity onPress={() => { this.toggleCallStackExpandable() }}>
-      {this.state.callStackExpandable ? <View><Text>callStack ▸ {simple}</Text></View> : <View><Text>callStack ▾ {simple}</Text></View>}
+      {this.state.callStackExpandable
+        ? <View><Text>callStack ▸ {simple}</Text></View>
+        : <View><Text>callStack ▾ {simple}</Text></View>}
       {element}
     </TouchableOpacity>
   }
   _renderTime (formattedDate) {
-    return <Text style={{color: 'green'}}>{formattedDate}</Text>
+    return <Text style={{color: 'green'}}>{formattedDate}：</Text>
   }
   render () {
     const {log, sectionId, rowId} = this.props
