@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   Text,
   View,
@@ -33,9 +34,7 @@ export default class TianYan extends Component {
   constructor (props) {
     super(props)
     const self = this
-    Dashboard.register(Console, {...this.props.options, tabLabel: '日志'})
-    Dashboard.register(Console, {...this.props.options, tabLabel: '性能'})
-    Dashboard.register(Console, {...this.props.options, tabLabel: '其他'})
+    Dashboard.register(Console, {...this.props.options, tabLabel: '日志'}, <Console />)
     Dashboard.setup()
 
     this._toggleDashboard = this._toggleDashboard.bind(this)
@@ -48,6 +47,7 @@ export default class TianYan extends Component {
       expendAnim: new Animated.Value(0)
     }
     this.panResponder = PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => {
         return gestureState.dx < 1 || gestureState.dy < 1
       },

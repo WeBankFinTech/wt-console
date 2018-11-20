@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   Text,
   View,
@@ -17,10 +18,11 @@ export default class Dashboard extends Component {
   }
   static registeredPlugins = []
 
-  static register (plugin, options) {
+  static register (plugin, options, element) {
     Dashboard.registeredPlugins.push({
       plugin,
-      options
+      options,
+      element
     })
   }
 
@@ -33,6 +35,14 @@ export default class Dashboard extends Component {
   }
 
   render () {
+    let pluginArr = []
+    Dashboard.registeredPlugins.forEach(item => {
+      if (item.plugin && item.plugin.name === 'Console') {
+        pluginArr.unshift(item)
+      } else {
+        pluginArr.push(item)
+      }
+    })
     return (
       <View style={{
         flex: 1
@@ -60,7 +70,7 @@ export default class Dashboard extends Component {
         >
           {
             /* body */
-            Dashboard.registeredPlugins.map((item, index) => {
+            pluginArr.map((item, index) => {
               return (
                 <View
                   key={index}
@@ -69,7 +79,7 @@ export default class Dashboard extends Component {
                     flex: 1,
                     alignSelf: 'stretch'
                   }}>
-                  <Console />
+                  {item.element}
                 </View>
               )
             })
