@@ -243,7 +243,11 @@ export default class Console extends Plugin {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        logList: this.state.logList
+        logList: this.state.logList.map(item => {
+          const newItem = {...item}
+          newItem.msg = format(...item.msg)
+          return newItem
+        })
       })
     }).then(response => {
       this.setState({
