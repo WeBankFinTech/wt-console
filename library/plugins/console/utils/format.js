@@ -73,7 +73,19 @@ export default function format () {
 
   if (argumentArray.length > 0) {
     const stringifiedArray = argumentArray.map(item => {
-      return typeof item === 'object' ? strongJSONStringify(item) : item
+      let cache = []
+      let _string = typeof item === 'object' ? JSON.stringify(item, (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+          if (cache.indexOf(value) !== -1) {
+            // Circular reference found, discard key
+            return;
+          }
+          // Store value in our collection
+          cache.push(value);
+        }
+        return value;
+      }) : item
+      return _string
     })
     resultString += ' ' + stringifiedArray.join(' ')
   }

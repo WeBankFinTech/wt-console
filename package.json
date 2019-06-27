@@ -38,6 +38,7 @@
   "peerDependencies": {
     "react": "16.0.0-alpha.6",
     "react-native": "^0.40.0",
-    "moment": "^2.22.2"
+    "moment": "^2.22.2",
+    "react-native-scrollable-tab-view": "^0.8.0"
   }
 }

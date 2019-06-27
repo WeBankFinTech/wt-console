@@ -3,16 +3,16 @@ import {
   View,
   TouchableOpacity,
   PixelRatio,
-  FlatList
+  ListView
 } from 'react-native'
 
 import React from 'react'
 import Plugin from '../Plugin'
 import Loading from './components/Loading'
 import ResultBoard from './components/ResultBoard'
-import format from './utils/format'
+import ScrollableTabView from 'react-native-scrollable-tab-view'
+import Log from './Log'
 
-let logIndexId = 0
 export default class Console extends Plugin {
   static name = 'Console'
 
@@ -35,38 +35,52 @@ export default class Console extends Plugin {
   }
 
   static setup (options) {
-    const log = window.console.log
+    this.console = {}
+    const that = this
+    const methodList = ['log', 'info', 'warn', 'debug', 'error']
+
+    if (!window.console) {
+      window.console = {}
+    } else {
+      methodList.map(function (method) {
+        that.console[method] = window.console[method]
+      })
+      that.console.time = window.console.time
+      that.console.timeEnd = window.console.timeEnd
+      that.console.clear = window.console.clear
+    }
 
     Console.options = options || {}
 
-    window.console.log = function () {
-      const {ignoreFilter} = Console.options
-      const callStack = new Error('').stack
-      let caller
-      const callstackArr = callStack.split(' at ')
-      if (callStack && callstackArr.length >= 2) {
-        caller = callstackArr[2].split(' ')[0]
+    methodList.map(method => {
+      let consoleLog = {
+        [method]: window.console[method]
       }
+      window.console[method] = (...args) => {
+        const {ignoreFilter} = Console.options
 
-      const formattedLog = {
-        ts: new Date().getTime(),
-        msg: arguments,
-        type: Console.LOG_TYPE.DEBUG,
-        caller
-      }
+        const callStack = new Error('').stack
+        const callstackArr = callStack.split(' at ').map(item => item.split(' ')[0])
 
-      if (ignoreFilter && typeof ignoreFilter === 'function' && ignoreFilter(...arguments)) {
-        log(...arguments)
-      } else {
-        Console.addLog(formattedLog)
-        log(...arguments)
+        const formattedLog = {
+          ts: new Date().getTime(),
+          msg: args,
+          logType: method,
+          callstackArr
+        }
+
+        if (ignoreFilter && typeof ignoreFilter === 'function' && ignoreFilter(...args)) {
+          consoleLog[method](...args)
+        } else {
+          consoleLog[method](...args)
+          Console.addLog(formattedLog)
+        }
       }
-    }
+    })
   }
 
   // TODO 用环形链表来实现这里的功能
   static addLog (formattedLog) {
-    formattedLog.id = logIndexId++
     const {maxLogLine = 1000} = Console.options
     if (Console.cachedLogList && Console.cachedLogList.length > maxLogLine) {
       Console.cachedLogList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
@@ -96,7 +110,7 @@ export default class Console extends Plugin {
     Console.currentInstance = null
   }
 
-  static everyTypeToString () {
+  static everyTypeToString (val) {
     if (!arguments) {
       if (arguments.length === 1) {
         if (val !== null && typeof val === 'object') {
@@ -122,44 +136,41 @@ export default class Console extends Plugin {
       return val
     })
   }
-
   render () {
-    // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
     const {logServerUrl = ''} = Console.options || {}
-    return (
-      <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
-        <View style={{flex: 1}}>
-          <FlatList
-            removeClippedSubviews={true}
-            onEndReachedThreshold={100}
-            data={this.state.logList}
-            keyExtractor={(item) => 'key_' + item.id}
-            renderItem={({item: log}) => {
-              const formattedDate = require('moment')(log.ts).format('HH:mm:ss')
-              return (
-                <View
-                  style={{
-                    borderBottomWidth: 1 / PixelRatio.get(),
-                    paddingTop: 5,
-                    paddingBottom: 5,
-                    flexDirection: 'row',
-                    paddingLeft: 5,
-                    borderColor: Console.theme.borderColorGray
-                  }}>
-                  <Text style={{flex: 1}}>
-                    <Text
-                      style={{color: 'green'}}>{log.id} {formattedDate}</Text>
-                    <Text
-                      style={{flex: 1}}>{format(...log.msg)}</Text>
-                    <Text
-                      style={{color: '#AAA'}}> {log.caller || ''}</Text>
-                  </Text>
-                </View>
-              )
-            }}
-          />
-        </View>
+    const methodList = ['All', 'Log', 'Info', 'Warn', 'Error']
 
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#FFFFFF'
+        }}>
+        <ScrollableTabView
+          initialPage={0}
+          locked
+          tabBarBackgroundColor='#fff'
+          tabBarTextStyle={{
+            fontSize: 12,
+            lineHeight: 14}}>
+          {methodList.map((item, index) => {
+            return (
+              <View key={index}
+                    tabLabel={item}
+                    style={{
+                      flex: 1,
+                      alignSelf: 'stretch'
+                    }}>
+                <ListView
+                  dataSource={ds.cloneWithRows(this.state.logList.filter(logItem => item === 'All' || item.toLowerCase() === logItem.logType))}
+                  enableEmptySections
+                  renderRow={(log, sectionId, rowId) => (<Log log={log} sectionId={sectionId} rowId={rowId} />)}
+                />
+              </View>
+            )
+          })}
+        </ScrollableTabView>
         <View
           style={{
             height: 45,
@@ -170,6 +181,7 @@ export default class Console extends Plugin {
           }}>
           <TouchableOpacity
             onPress={this._onPressUpload.bind(this)}
+            underlayColor={'#EEE'}
             style={{
               flex: 1
             }}>
