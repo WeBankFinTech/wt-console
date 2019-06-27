@@ -14,26 +14,21 @@ import {getDate, isArray, isBoolean, isString, isFunction, isUndefined, isNull, 
 export default class Log extends Plugin {
   static propTypes = {
     log: React.PropTypes.object.isRequired,
-    sectionId: React.PropTypes.string,
     owId: React.PropTypes.string
   }
   constructor (props) {
     super(props)
 
-    const date = getDate()
-    const formattedDate = `${date.month}-${date.day} ${date.hour}:${date.minute}:${date.second}`
-
     this.state = {
       callStackExpandable: true,
-      logExpandable: true,
-      formattedDate
+      logExpandable: true
     }
   }
 
-  _parseBgColor (logType) {
-    const methodList = ['log', 'info', 'warn', 'debug', 'error']
-    const bgColor = ['#fff', '#fff', '#FFFACD', '#fff', '#FFE4E1']
-    const borderColor = ['#BBC', '#BBC', '#FFB930', '#BBC', '#F4A0AB']
+  _parseBgColor (logType, rowId) {
+    const methodList = ['warn', 'error']
+    const bgColor = ['#FFFACD', '#FFE4E1']
+    const borderColor = ['#FFB930', '#F4A0AB']
 
     if (methodList.indexOf(logType) !== -1) {
       return {
@@ -42,8 +37,8 @@ export default class Log extends Plugin {
       }
     } else {
       return {
-        backgroundColor: bgColor[0],
-        borderColor: borderColor[0]
+        backgroundColor: rowId % 2 === 1 ? '#fff' : '#f0f0f0',
+        borderColor: '#BBC'
       }
     }
   }
@@ -111,7 +106,7 @@ export default class Log extends Plugin {
               flexDirection: 'row',
               flex: 1
             }}>
-              <View style={{width: 100}}><Text> ▾ {simple}</Text></View>
+              <Text> ▾ </Text>
               {_element}
             </View>}
         </TouchableOpacity>
@@ -134,19 +129,25 @@ export default class Log extends Plugin {
   _renderCallStack (callstackArr) {
     let simple = this._renderSimple(callstackArr)
     let element = this.state.callStackExpandable ? null : this._renderLogForEachType(callstackArr)
-    return <TouchableOpacity onPress={() => { this.toggleCallStackExpandable() }}>
+    return <TouchableOpacity style={{
+      paddingVertical: 5,
+      marginTop: 10,
+      borderTopWidth: 1 / PixelRatio.get(),
+
+    }} onPress={() => { this.toggleCallStackExpandable() }}>
       {this.state.callStackExpandable
         ? <View><Text>callStack ▸ {simple}</Text></View>
         : <View><Text>callStack ▾ {simple}</Text></View>}
       {element}
     </TouchableOpacity>
   }
-  _renderTime (formattedDate) {
+  _renderTime (ts) {
+    const date = getDate(ts)
+    const formattedDate = `${date.month}-${date.day} ${date.hour}:${date.minute}:${date.second}:${date.millisecond}`
     return <Text style={{color: 'green'}}>{formattedDate}：</Text>
   }
   render () {
-    const {log, sectionId, rowId} = this.props
-    const {formattedDate} = this.state
+    const {log, rowId} = this.props
     return (
       <View
         style={{
@@ -154,14 +155,13 @@ export default class Log extends Plugin {
           paddingTop: 5,
           paddingBottom: 5,
           paddingLeft: 5,
-          ...this._parseBgColor(log.logType)
+          ...this._parseBgColor(log.logType, rowId)
         }}>
         <View style={{flex: 1, flexDirection: 'row'}}>
-          {this._renderTime(formattedDate)}
-          {/*{this._renderCallStack({a: 1, b: 2})}*/}
-          {this._renderCallStack(log.callstackArr)}
+          {this._renderTime(log.ts)}
         </View>
         {this._renderLog(log.msg)}
+        {this._renderCallStack(log.callstackArr)}
       </View>
     )
   }
