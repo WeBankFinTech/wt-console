@@ -5,7 +5,8 @@ import {
   Text,
   View,
   TouchableOpacity,
-  PixelRatio
+  PixelRatio,
+  Clipboard
 } from 'react-native'
 
 import React from 'react'
@@ -126,14 +127,16 @@ export default class Log extends Plugin {
       logExpandable: !prevState.logExpandable
     }))
   }
+  copyLog (log) {
+    Clipboard.setString(JSON.stringify(log));
+  }
   _renderCallStack (callstackArr) {
     let simple = this._renderSimple(callstackArr)
     let element = this.state.callStackExpandable ? null : this._renderLogForEachType(callstackArr)
     return <TouchableOpacity style={{
       paddingVertical: 5,
       marginTop: 10,
-      borderTopWidth: 1 / PixelRatio.get(),
-
+      borderTopWidth: 1 / PixelRatio.get()
     }} onPress={() => { this.toggleCallStackExpandable() }}>
       {this.state.callStackExpandable
         ? <View><Text>callStack ▸ {simple}</Text></View>
@@ -146,19 +149,33 @@ export default class Log extends Plugin {
     const formattedDate = `${date.month}-${date.day} ${date.hour}:${date.minute}:${date.second}:${date.millisecond}`
     return <Text style={{color: 'green'}}>{formattedDate}：</Text>
   }
+  _renderCopyBtn (log) {
+    return <TouchableOpacity style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 20,
+      width: 50,
+      borderWidth: 1,
+      borderColor: 'green',
+      borderRadius: 21
+    }} onPress={() => { this.copyLog(log) }}>
+      <View><Text style={{color: 'green'}}>复制</Text></View>
+    </TouchableOpacity>
+  }
   render () {
     const {log, rowId} = this.props
     return (
       <View
         style={{
           borderBottomWidth: 1 / PixelRatio.get(),
-          paddingTop: 5,
-          paddingBottom: 5,
-          paddingLeft: 5,
+          paddingVertical: 5,
+          paddingHorizontal: 5,
           ...this._parseBgColor(log.logType, rowId)
         }}>
-        <View style={{flex: 1, flexDirection: 'row'}}>
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, paddingVertical: 5, borderBottomWidth: 1 / PixelRatio.get()}}>
           {this._renderTime(log.ts)}
+          {this._renderCopyBtn(log)}
         </View>
         {this._renderLog(log.msg)}
         {this._renderCallStack(log.callstackArr)}
