@@ -13,7 +13,7 @@ import React, { Component } from 'react'
 export default class Loading extends Component {
   static propTypes = {
     visibility: React.PropTypes.bool,
-    logId: React.PropTypes.string,
+    logId: React.PropTypes.number,
     logServerUrl: React.PropTypes.string,
 
     onPressBack: React.PropTypes.func

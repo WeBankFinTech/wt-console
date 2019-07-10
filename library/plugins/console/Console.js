@@ -271,21 +271,27 @@ export default class Console extends Plugin {
   }
 
   _onPressUpload () {
-    const {logServerUrl = null} = Console.options
+    const {logServerUrl = null, customData = null} = Console.options
     if (!logServerUrl) {
       console.log('You must set logServerUrl when register Console')
       return
     }
     this.setState({showLoading: true})
+    let body = {
+      logList: this.state.logList
+    }
+    if (customData) {
+      for (let key in customData) {
+        body[key] = customData[key]
+      }
+    }
     fetch(logServerUrl, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        logList: this.state.logList
-      })
+      body: JSON.stringify(body)
     }).then(response => {
       this.setState({
         showLoading: false

@@ -17,6 +17,7 @@ export default class Dashboard extends Component {
     onPressClose: React.PropTypes.func
   }
   static registeredPlugins = []
+  static customData = null
 
   static register (plugin, options, element) {
     Dashboard.registeredPlugins.push({
@@ -30,8 +31,15 @@ export default class Dashboard extends Component {
     Dashboard.registeredPlugins.filter((item) => {
       return item.plugin && item.plugin.setup
     }).forEach((item) => {
-      item.plugin.setup(item.options)
+      item.plugin.setup({
+        ...item.options,
+        customData: {...Dashboard.customData}
+      })
     })
+  }
+
+  static addCustomData (data) {
+    Dashboard.customData = data
   }
 
   render () {
