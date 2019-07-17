@@ -48,6 +48,8 @@ export default class TianYan extends Component {
     this.panResponder = PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponderCapture: () => true,
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
       onPanResponderGrant: this._onPanResponderGrant,
       onPanResponderMove: this._onPanResponderMove,
       onPanResponderRelease: this._onPanResponderRelease,
@@ -196,7 +198,7 @@ export default class TianYan extends Component {
           </Animated.View> :
           <TouchableOpacity
             style={{
-              borderRadius: this.size.iconSize / 2,
+              borderWidth: 0,
             }}
             onPress={() => {}}>
             <Animated.Image style={{
@@ -204,12 +206,9 @@ export default class TianYan extends Component {
                 inputRange: [0, 40, 100],
                 outputRange: [1, 0, 0],
               }),
+              backgroundColor: 'transparent',
               width: this.size.iconSize,
               height: this.size.iconSize,
-              borderRadius: this.size.iconSize / 2,
-              borderWidth: 0.5,
-              borderColor: '#EEE',
-              backgroundColor: '#FFF'
             }} resizeMode={'contain'} source={require('./images/tianyan-icon.png')} />
           </TouchableOpacity>}
       </Animated.View>
