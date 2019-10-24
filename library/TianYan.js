@@ -14,12 +14,13 @@ import {
 import React, { Component } from 'react'
 import Dashboard from './Dashboard'
 import Console from './plugins/console/Console'
+import PropTypes from 'prop-types'
 
 const { width, height } = Dimensions.get("window");
 
 export default class TianYan extends Component {
   static propTypes = {
-    options: React.PropTypes.object.isRequired
+    options: PropTypes.object.isRequired
   }
 
   static init (options) {

@@ -12,10 +12,12 @@ import {
 import React from 'react'
 import Plugin from '../Plugin'
 import {getDate, isArray, isBoolean, isString, isFunction, isUndefined, isNull, isObject, isSymbol, isNumber, JSONStringify, getObjName} from './utils'
+import PropTypes from 'prop-types'
+
 export default class Log extends Plugin {
   static propTypes = {
-    log: React.PropTypes.object.isRequired,
-    owId: React.PropTypes.string
+    log: PropTypes.object.isRequired,
+    owId: PropTypes.string
   }
   constructor (props) {
     super(props)

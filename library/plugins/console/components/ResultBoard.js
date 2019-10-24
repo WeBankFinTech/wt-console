@@ -9,14 +9,15 @@ import {
   TouchableHighlight
 } from 'react-native'
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 export default class Loading extends Component {
   static propTypes = {
-    visibility: React.PropTypes.bool,
-    logId: React.PropTypes.number,
-    logServerUrl: React.PropTypes.string,
+    visibility: PropTypes.bool,
+    logId: PropTypes.number,
+    logServerUrl: PropTypes.string,
 
-    onPressBack: React.PropTypes.func
+    onPressBack: PropTypes.func
   }
 
   render () {

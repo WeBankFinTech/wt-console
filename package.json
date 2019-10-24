@@ -9,10 +9,13 @@
   "author": "erichua",
   "license": "MIT",
   "scripts": {
-    "start": "node_modules/react-native/packager/packager.sh --config ./packager-config.js",
+    "start": "node_modules/react-native/scripts/packager.sh",
     "test": "jest"
   },
-  "dependencies": {},
+  "dependencies": {
+    "prop-types": "^15.7.2",
+    "react-native-scrollable-tab-view": "^0.10.0"
+  },
   "jest": {
     "preset": "react-native"
   },
@@ -30,10 +33,10 @@
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-react": "^6.10.3",
     "eslint-plugin-standard": "^2.3.1",
-    "standard": "^9.0.0",
-    "react": "16.0.0-alpha.6",
     "moment": "^2.22.2",
-    "react-native": "^0.43.3"
+    "react": "^16.0.0-alpha.12",
+    "react-native": "^0.51.0",
+    "standard": "^9.0.0"
   },
   "peerDependencies": {
     "react": "16.0.0-alpha.6",

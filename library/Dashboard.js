@@ -11,10 +11,11 @@ import {
 import React, { Component } from 'react'
 import Console from './plugins/console/Console'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
+import PropTypes from 'prop-types'
 
 export default class Dashboard extends Component {
   static propTypes = {
-    onPressClose: React.PropTypes.func
+    onPressClose: PropTypes.func
   }
   static registeredPlugins = []
   static customData = null
