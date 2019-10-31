@@ -17,17 +17,15 @@ import Console from './plugins/console/Console'
 import PropTypes from 'prop-types'
 
 const { width, height } = Dimensions.get("window");
-
+const iconSize = 50
+const leftPosition = 0
+const rightPosition = width - iconSize
 export default class TianYan extends Component {
   static propTypes = {
     options: PropTypes.object.isRequired
   }
 
   static init (options) {
-  }
-
-  size = {
-    iconSize: 50
   }
 
   constructor (props) {
@@ -39,12 +37,13 @@ export default class TianYan extends Component {
     this._toggleDashboard = this._toggleDashboard.bind(this)
     this.state = {
       pan: new Animated.ValueXY({
-        x: width - this.size.iconSize,
+        x: rightPosition,
         y: 300
       }),
       expendAnim: new Animated.Value(0),
       showDashboard: false
     }
+
 
     this.panResponder = PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
@@ -53,8 +52,7 @@ export default class TianYan extends Component {
       onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
       onPanResponderGrant: this._onPanResponderGrant,
       onPanResponderMove: this._onPanResponderMove,
-      onPanResponderRelease: this._onPanResponderRelease,
-      onPanResponderTerminate: this._onPanResponderRelease
+      onPanResponderRelease: this._onPanResponderRelease
     })
   }
   componentDidMount () {
@@ -66,9 +64,13 @@ export default class TianYan extends Component {
       x: this.state.pan.x._value,
       y: this.state.pan.y._value
     })
+    this.state.pan.setValue({ x: 0, y: 0 });
+    console.log('点击时x:', this.state.pan.x._value, 'y:', this.state.pan.y._value)
   }
 
   _onPanResponderMove = (evt, gestureState) => {
+    console.log('移动时x:', this.state.pan.x._value, 'y:', this.state.pan.y._value, gestureState)
+
     Animated.event([
       null,
       {
@@ -79,28 +81,22 @@ export default class TianYan extends Component {
   }
   _onPanResponderRelease = (evt, gestureState) => {
     this.state.pan.flattenOffset()
+    console.log('放手时x:', this.state.pan.x._value, 'y:', this.state.pan.y._value, gestureState)
 
     // 处理y轴
     const y = this.state.pan.y._value
-    if (y < 10 || y > height - this.size.iconSize - 10) {
+
+    if (y < 10 || y > height - iconSize - 10) {
       Animated.spring(this.state.pan.y, {
-        toValue: y < 45 ? 45 : height - this.size.iconSize - 10,
+        toValue: y < 45 ? 45 : height - iconSize - 10,
         duration: 200
       }).start();
     }
 
-    // 处理x轴
-    let toX = 0
-    if ((this.state.pan.x._value + this.size.iconSize / 2) > width / 2) {
-      toX = width - this.size.iconSize
-    }
-    Animated.spring(this.state.pan.x, {
-      toValue: gestureState.moveX > width * 0.5 ? width - this.size.iconSize : 0,
-      duration: 200
-    }).start();
+    this.lastValueX = this.state.pan.x.__getValue();
+    this.lastValueY = this.state.pan.y.__getValue();
+    console.log('放手时x:', this.lastValueX, 'y:', this.lastValueY)
 
-    this.lastValueX = this.state.pan.x._value;
-    this.lastValueY = this.state.pan.y._value;
 
     // 单击
     let releaseTime = Date.parse(new Date())
@@ -110,6 +106,18 @@ export default class TianYan extends Component {
       Math.abs(gestureState.dy) < 10
     ) {
       this._toggleDashboard()
+    } else if (
+      // 长按没有移动
+      releaseTime - this.time > 50 &&
+      Math.abs(gestureState.dx) < 10 &&
+      Math.abs(gestureState.dy) < 10) {
+      return
+    } else {
+      // 处理x轴
+      Animated.spring(this.state.pan.x, {
+        toValue: gestureState.moveX > width * 0.5 ? rightPosition : leftPosition,
+        duration: 200
+      }).start();
     }
   }
   _toggleDashboard () {
@@ -151,22 +159,22 @@ export default class TianYan extends Component {
           {...this.state.pan.getLayout()},
           {
             position: 'absolute',
-            width: this.size.iconSize,
-            height: this.size.iconSize,
-            borderRadius: this.size.iconSize / 2
+            width: iconSize,
+            height: iconSize,
+            borderRadius: iconSize / 2
           },
           this.state.isAnimationRunning ? {
             borderRadius: this.state.expendAnim.interpolate({
               inputRange: [0, 100],
-              outputRange: [this.size.iconSize / 2, 0],
+              outputRange: [iconSize / 2, 0],
             }),
             width: this.state.expendAnim.interpolate({
               inputRange: [0, 100],
-              outputRange: [this.size.iconSize, Dimensions.get('window').width],
+              outputRange: [iconSize, Dimensions.get('window').width],
             }),
             height: this.state.expendAnim.interpolate({
               inputRange: [0, 100],
-              outputRange: [this.size.iconSize, Dimensions.get('window').height],
+              outputRange: [iconSize, Dimensions.get('window').height],
             }),
             top: this.state.expendAnim.interpolate({
               inputRange: [0, 100],
@@ -208,8 +216,8 @@ export default class TianYan extends Component {
                 outputRange: [1, 0, 0],
               }),
               backgroundColor: 'transparent',
-              width: this.size.iconSize,
-              height: this.size.iconSize,
+              width: iconSize,
+              height: iconSize,
             }} resizeMode={'contain'} source={require('./images/tianyan-icon.png')} />
           </TouchableOpacity>}
       </Animated.View>
