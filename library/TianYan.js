@@ -65,11 +65,9 @@ export default class TianYan extends Component {
       y: this.state.pan.y._value
     })
     this.state.pan.setValue({ x: 0, y: 0 });
-    console.log('点击时x:', this.state.pan.x._value, 'y:', this.state.pan.y._value)
   }
 
   _onPanResponderMove = (evt, gestureState) => {
-    console.log('移动时x:', this.state.pan.x._value, 'y:', this.state.pan.y._value, gestureState)
 
     Animated.event([
       null,
@@ -81,7 +79,6 @@ export default class TianYan extends Component {
   }
   _onPanResponderRelease = (evt, gestureState) => {
     this.state.pan.flattenOffset()
-    console.log('放手时x:', this.state.pan.x._value, 'y:', this.state.pan.y._value, gestureState)
 
     // 处理y轴
     const y = this.state.pan.y._value
@@ -95,9 +92,6 @@ export default class TianYan extends Component {
 
     this.lastValueX = this.state.pan.x.__getValue();
     this.lastValueY = this.state.pan.y.__getValue();
-    console.log('放手时x:', this.lastValueX, 'y:', this.lastValueY)
-
-
     // 单击
     let releaseTime = Date.parse(new Date())
     if (
