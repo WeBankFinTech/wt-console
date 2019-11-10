@@ -11,12 +11,16 @@ import {
 
 import React from 'react'
 import Plugin from '../Plugin'
-import {getDate, isArray, isBoolean, isString, isFunction, isUndefined, isNull, isObject, isSymbol, isNumber, JSONStringify, getObjName} from './utils'
+import {getDate, isArray, isBoolean, isString, isObject,isNumber, JSONStringify, getObjName} from './utils'
 import PropTypes from 'prop-types'
+import JSONTree from "react-native-json-tree";
 
 export default class Log extends Plugin {
   static propTypes = {
-    log: PropTypes.object.isRequired,
+    log: PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.string
+    ]).isRequired,
     owId: PropTypes.string
   }
   constructor (props) {
@@ -30,8 +34,8 @@ export default class Log extends Plugin {
 
   _parseBgColor (logType, rowId) {
     const methodList = ['warn', 'error']
-    const bgColor = ['#FFFACD', '#FFE4E1']
-    const borderColor = ['#FFB930', '#F4A0AB']
+    const bgColor = ['#fffacd', '#ffe4e1']
+    const borderColor = ['#ffb930', '#f4a0ab']
 
     if (methodList.indexOf(logType) !== -1) {
       return {
@@ -40,14 +44,14 @@ export default class Log extends Plugin {
       }
     } else {
       return {
-        backgroundColor: rowId % 2 === 1 ? '#fff' : '#f0f0f0',
-        borderColor: '#BBC'
+        backgroundColor: rowId % 2 === 1 ? '#ffffff' : '#f0f0f0',
+        borderColor: '#b0b0c1'
       }
     }
   }
   _parseFontColor (logType) {
     const methodList = ['log', 'info', 'warn', 'debug', 'error']
-    const color = ['#414951', '#6A5ACD', '#FFA500', '#414951', '#DC143C']
+    const color = ['#414951', '#6a5acd', '#FFA500', '#414951', '#dc143c']
 
     if (methodList.indexOf(logType) !== -1) {
       return {
@@ -87,7 +91,8 @@ export default class Log extends Plugin {
     let outer = null
     let json = JSONStringify(log, '')
     if (json) {
-      let preview = json.substr(0, 26)
+      let preview = json.substr(0, 40)
+      preview = preview.replace(/"([^"]+(?="))"/g, '$1')
       outer = showType ? getObjName(log) : ''
       if (json.length > 40) {
         preview += '...'
@@ -97,6 +102,11 @@ export default class Log extends Plugin {
     return <Text>{outer}</Text>
   }
   _renderLog (log) {
+    const theme = {
+      scheme: 'monokai',
+      author: 'wimer hazenberg (http://www.monokai.nl)',
+      base00: '#27282200'
+    };
     let element = null
     if (log && isArray(log)) {
       element = log.map((item, index) => {
@@ -115,8 +125,16 @@ export default class Log extends Plugin {
         </TouchableOpacity>
       })
     }
-    return <View>
-      {element}
+    let simple = this._renderSimple(log[0], false)
+
+    return <View style={{flex: 1}}>
+      <View><Text>{simple}</Text></View>
+      <JSONTree
+        invertTheme={false}
+        style={{...this._parseBgColor(log.logType, 1)}}
+        theme={theme}
+        shouldExpandNode={() => false}
+        data={log}/>
     </View>
   }
   toggleCallStackExpandable () {
@@ -175,12 +193,11 @@ export default class Log extends Plugin {
           paddingHorizontal: 5,
           ...this._parseBgColor(log.logType, rowId)
         }}>
-        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, paddingVertical: 5, borderBottomWidth: 1 / PixelRatio.get()}}>
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, paddingVertical: 5, borderBottomWidth: 1 / PixelRatio.get(), borderColor: '#d2d2e3'}}>
           {this._renderTime(log.ts)}
           {this._renderCopyBtn(log)}
         </View>
         {this._renderLog(log.msg)}
-        {this._renderCallStack(log.callstackArr)}
       </View>
     )
   }
