@@ -13,9 +13,10 @@
     "test": "jest"
   },
   "dependencies": {
+    "lodash": "^4.17.13",
     "prop-types": "^15.7.2",
-    "react-native-scrollable-tab-view": "^0.10.0",
-    "react-native-json-tree": "^1.2.0"
+    "react-native-json-tree": "^1.2.0",
+    "react-native-scrollable-tab-view": "^0.10.0"
   },
   "jest": {
     "preset": "react-native"
