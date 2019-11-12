@@ -189,11 +189,19 @@ export default class Log extends Plugin {
       <View
         style={{
           borderBottomWidth: 1 / PixelRatio.get(),
-          paddingVertical: 5,
+          paddingBottom: 5,
           paddingHorizontal: 5,
           ...this._parseBgColor(log.logType, rowId)
         }}>
-        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, paddingVertical: 5, borderBottomWidth: 1 / PixelRatio.get(), borderColor: '#d2d2e3'}}>
+        <View style={{
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginBottom: 10,
+          paddingVertical: 5,
+          borderBottomWidth: 1 / PixelRatio.get(),
+          borderColor: '#d2d2e3'
+        }}>
           {this._renderTime(log.ts)}
           {this._renderCopyBtn(log)}
         </View>
