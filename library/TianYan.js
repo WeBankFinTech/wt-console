@@ -196,7 +196,7 @@ export default class TianYan extends Component {
           height: height
         }, this._getDashboardAnimatedStyle()]}>
         <View style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           height: 75
         }}>
           <TouchableOpacity style={{

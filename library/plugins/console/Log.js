@@ -166,8 +166,8 @@ export default class Log extends Plugin {
   }
   _renderTime (ts) {
     const date = getDate(ts)
-    const formattedDate = `${date.month}-${date.day} ${date.hour}:${date.minute}:${date.second}:${date.millisecond}`
-    return <Text style={{color: 'green'}}>{formattedDate}：</Text>
+    const formattedDate = `${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute}:${date.second}.${date.millisecond}`
+    return <Text style={{color: 'green'}}>{formattedDate}</Text>
   }
   _renderCopyBtn (log) {
     return <TouchableOpacity style={{
