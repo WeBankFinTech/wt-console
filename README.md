@@ -25,8 +25,8 @@ export default class SimpleApp extends Component {
         <TianYan options={{
           logServerUrl: 'http://23lab.com:3000/v1/log',
           maxLogLine: 1000,
-          ignoreFilter: function () { // 根据自定义规则过滤日志，避免手机端显示太多无用信息
-            return (arguments && typeof arguments[0] === 'string' && arguments[0].indexOf('ignored log') === 0)
+          ignoreFilter: function () { // 根据自定义规则过滤日志，避免手机端显示太多无用信息
+            return (arguments && typeof arguments[0] === 'string' && arguments[0].indexOf('ignored log') === 0)
           }
         }} />
       </View>
