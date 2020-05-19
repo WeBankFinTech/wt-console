@@ -86,7 +86,7 @@ class Arrow extends Component {
         onPress={this.props.onPress}
         activeOpacity={0.5}
       >
-        <View style={{flexDirection: 'row', marginBottom: 5}}>
+        <View style={{flexDirection: 'row', marginVertical: 5}}>
           <Text style={{fontSize: FONT_SIZE}}>{show ? '👇' : '👉️'}</Text>
           <Text
             style={[{flex: 1, color: this.props.color, fontSize: FONT_SIZE}, this.props.isGroup ? {fontWeight: 'bold'} : null]}
