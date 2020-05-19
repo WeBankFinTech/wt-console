@@ -1,6 +1,6 @@
 {
   "name": "@unpourtous/wt-console",
-  "version": "1.1.47",
+  "version": "1.2.0",
   "description": "React Native component for both Android and iOS",
   "main": "library/index.js",
   "keywords": [
