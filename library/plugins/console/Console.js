@@ -11,10 +11,13 @@ import Plugin from '../Plugin'
 import Loading from './components/Loading'
 import ResultBoard from './components/ResultBoard'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
-import Log from './Log'
+// import Log from './Log'
+import { Log, Group, realOnePixel } from '../../DumpObject'
 
 export default class Console extends Plugin {
   static name = 'Console'
+
+  static isProxy = false
 
   static cachedLogList = []
   static currentInstance = null
@@ -27,56 +30,45 @@ export default class Console extends Plugin {
     borderColorGray: '#BBC',
     borderColor: '#DDD'
   }
-
-  state = {
-    logList: [],
-    showLoading: false,
-    showResult: false
-  }
   _tmpConsoleGroup = null
   _concatGroup = false
 
   static setup (options) {
-    this.console = {}
-    const that = this
+    if (Console.isProxy) {
+      return
+    }
+    Console.isProxy = true
+    Console.rawConsole = {}
     const methodList = ['log', 'info', 'warn', 'debug', 'error', 'groupEnd', 'groupCollapsed']
 
     if (!window.console) {
       window.console = {}
-    } else {
-      methodList.map(function (method) {
-        that.console[method] = window.console[method]
-      })
-      that.console.time = window.console.time
-      that.console.timeEnd = window.console.timeEnd
-      that.console.clear = window.console.clear
-      that.console.groupCollapsed = window.console.groupCollapsed
-      that.console.groupEnd = window.console.groupEnd
     }
+    methodList.forEach((method) => {
+      Console.rawConsole[method] = window.console[method]
+    })
 
     Console.options = options || {}
 
     methodList.map(method => {
-      let consoleLog = {
-        [method]: window.console[method]
-      }
       window.console[method] = (...args) => {
+        // this.rawConsole.log(args)
         const {ignoreFilter} = Console.options
 
-        const callStack = new Error('').stack
-        const callstackArr = callStack.split(' at ').map(item => item.split(' ')[0])
+        // const callStack = new Error('').stack
+        // const callstackArr = callStack.split(' at ').map(item => item.split(' ')[0])
 
         const formattedLog = {
-          ts: new Date().getTime(),
+          ts: Date.now(),
           msg: args,
-          logType: method,
-          callstackArr
+          logType: method
         }
 
+        const rawLog = Console.rawConsole[method]
         if (ignoreFilter && typeof ignoreFilter === 'function' && ignoreFilter(...args)) {
-          consoleLog[method](...args)
+          rawLog(...args)
         } else {
-          consoleLog[method](...args)
+          rawLog(...args)
           Console.addLog(formattedLog)
         }
       }
@@ -86,19 +78,21 @@ export default class Console extends Plugin {
   // TODO 用环形链表来实现这里的功能
   static addLog (formattedLog) {
     // 把groupCollapsed组合成一组
+    this.rawConsole.log(`formattedLog${formattedLog.logType}:`, formattedLog)
     if (formattedLog.logType === 'groupCollapsed' && !this._tmpConsoleGroup && !this._concatGroup) {
       this._tmpConsoleGroup = {
         ...formattedLog,
-        logType: 'network'
+        logList: [],
+        category: 'network'
       }
       this._concatGroup = true
       return
     } else if (formattedLog.logType !== 'groupEnd' && this._concatGroup) {
       this._tmpConsoleGroup = {
         ...this._tmpConsoleGroup,
-        msg: [
-          ...this._tmpConsoleGroup.msg,
-          ...formattedLog.msg
+        logList: [
+          ...this._tmpConsoleGroup.logList,
+          formattedLog
         ]
       }
       return
@@ -110,12 +104,23 @@ export default class Console extends Plugin {
     }
     Console.cachedLogList = [this._tmpConsoleGroup || formattedLog, ...Console.cachedLogList]
 
-    if (Console.currentInstance) {
+    /* 渲染错误日志就不打印了，否则会陷入死循环 */
+    if (Console.currentInstance && !Console.currentInstance._isRender) {
       if (Console.currentInstance.state.logList && Console.currentInstance.state.logList.length > maxLogLine) {
         Console.currentInstance.state.logList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
       }
 
-      Console.currentInstance.state.logList = [this._tmpConsoleGroup || formattedLog, ...Console.currentInstance.state.logList]
+      let item
+      if (this._tmpConsoleGroup) {
+        item = this._tmpConsoleGroup
+      } else {
+        item = {
+          ...formattedLog,
+          category: formattedLog.logType
+        }
+      }
+      this.rawConsole.log('item:', item)
+      Console.currentInstance.state.logList = [item, ...Console.currentInstance.state.logList]
       Console.currentInstance.setState({
         logList: Console.currentInstance.state.logList
       })
@@ -126,11 +131,22 @@ export default class Console extends Plugin {
     }
   }
 
-  componentWillMount () {
+  constructor (props) {
+    super(props)
     Console.currentInstance = this
-    this.setState({
-      logList: Console.cachedLogList
-    })
+    this.state = {
+      logList: Console.cachedLogList,
+      showLoading: false,
+      showResult: false
+    }
+    this._isRender = false
+  }
+
+  componentDidMount () {
+    this._isRender = false
+  }
+  componentDidUpdate () {
+    this._isRender = false
   }
 
   componentWillUnmount () {
@@ -163,7 +179,15 @@ export default class Console extends Plugin {
       return val
     })
   }
+
+  _renderSeparator = () => {
+    return (
+      <View style={{height: realOnePixel, backgroundColor: '#AAAAAA'}} />
+    )
+  }
+
   render () {
+    this._isRender = true
     const {logServerUrl = ''} = Console.options || {}
     const methodList = ['All', 'Warn', 'Error', 'Network']
     const logList = this.state.logList.sort((a, b) => b.ts - a.ts)
@@ -181,7 +205,7 @@ export default class Console extends Plugin {
             fontSize: 12,
             lineHeight: 14}}>
           {methodList.map((item, index) => {
-            let consoleList = logList.filter(logItem => item === 'All' || item.toLowerCase() === logItem.logType)
+            let consoleList = logList.filter(logItem => item === 'All' || item.toLowerCase() === logItem.category)
             return (
               <View key={index}
                     tabLabel={item}
@@ -192,9 +216,12 @@ export default class Console extends Plugin {
                 <FlatList
                   data={consoleList}
                   renderItem={({item, index, separators}) => (
-                    <Log log={item} rowId={index} />
+                    item.logType === 'groupCollapsed'
+                      ? <Group tag={item.msg} value={item.logList} />
+                      : <Log value={item.msg} logType={item.logType} />
                   )}
                   keyExtractor={(item, index) => index.toString()}
+                  ItemSeparatorComponent={this._renderSeparator}
                 />
               </View>
             )

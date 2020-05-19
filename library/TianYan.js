@@ -31,7 +31,8 @@ export default class TianYan extends Component {
       pan: new Animated.ValueXY({
         x: RIGHT_X,
         y: 300
-      })
+      }),
+      showDashboard: false
     }
     this.x = RIGHT_X
     this.y = 300
@@ -117,6 +118,9 @@ export default class TianYan extends Component {
     if (this.isFold) {
       // 展开
       this.isFold = false
+      this.setState({
+        showDashboard: true
+      })
       this.state.expendAnim.setValue(100)
       Animated.timing(this.state.expendAnim, {
         toValue: 0,
@@ -131,7 +135,11 @@ export default class TianYan extends Component {
         toValue: 100,
         duration: 200,
         useNativeDriver: true
-      }).start()
+      }).start(() => {
+        this.setState({
+          showDashboard: false
+        })
+      })
     }
   }
 
@@ -165,6 +173,9 @@ export default class TianYan extends Component {
   }
 
   render () {
+    const {
+      showDashboard
+    } = this.state
     return [
       <Animated.View
         key={'eye'}
@@ -208,7 +219,7 @@ export default class TianYan extends Component {
             </View>
           </TouchableOpacity>
         </View>
-        <Dashboard />
+        {showDashboard ? <Dashboard /> : null}
       </Animated.View>
     ]
   }
