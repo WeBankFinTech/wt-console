@@ -308,6 +308,7 @@ export default class Console extends Plugin {
       addToRemote(Console.cachedLogList)
         .then(() => {
           this.setState({
+            showLoading: false,
             showResult: true,
             uploadedLogId: 'temp'
           })
