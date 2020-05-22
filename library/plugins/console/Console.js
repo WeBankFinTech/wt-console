@@ -174,7 +174,11 @@ export default class Console extends Plugin {
             fontSize: 12,
             lineHeight: 14}}>
           {methodList.map((item, index) => {
-            let consoleList = logList.filter(logItem => item === 'All' || item.toLowerCase() === logItem.category)
+            let consoleList = logList.filter(logItem =>
+              item === 'All' ||
+              item.toLowerCase() === logItem.category ||
+              item.toLowerCase() === logItem.logType
+            )
             return (
               <View key={index}
                     tabLabel={item}
