@@ -14,6 +14,8 @@ import ScrollableTabView from 'react-native-scrollable-tab-view'
 // import Log from './Log'
 import { Log, Group, realOnePixel } from '../../DumpObject'
 
+const METHOD_LIST = ['All', 'Warn', 'Error']
+
 export default class Console extends Plugin {
   static name = 'Console'
 
@@ -126,6 +128,8 @@ export default class Console extends Plugin {
       showResult: false
     }
     this._isRender = false
+    this._refs = {}
+    this.currentMethod = METHOD_LIST[0]
   }
 
   componentDidMount () {
@@ -145,12 +149,17 @@ export default class Console extends Plugin {
     )
   }
 
-  _onRef = (ref) => {
-    this.flatList = ref
+  _onChange = ({i}) => {
+    this.currentMethod = METHOD_LIST[i]
+  }
+  _onRef = (method) => {
+    return (ref) => {
+      this._refs[method] = ref
+    }
   }
 
   _gotoBottom = () => {
-    this.flatList && this.flatList.scrollToEnd()
+    this._refs[this.currentMethod] && this._refs[this.currentMethod].scrollToEnd()
   }
 
   render () {
@@ -159,7 +168,6 @@ export default class Console extends Plugin {
       logList
     } = this.state
     const {logServerUrl = ''} = Console.options || {}
-    const methodList = ['All', 'Warn', 'Error']
     return (
       <View
         style={{
@@ -172,8 +180,9 @@ export default class Console extends Plugin {
           tabBarBackgroundColor='#fff'
           tabBarTextStyle={{
             fontSize: 12,
-            lineHeight: 14}}>
-          {methodList.map((item, index) => {
+            lineHeight: 14}}
+          onChangeTab={this._onChange}>
+          {METHOD_LIST.map((item, index) => {
             let consoleList = logList.filter(logItem =>
               item === 'All' ||
               item.toLowerCase() === logItem.category ||
@@ -195,7 +204,7 @@ export default class Console extends Plugin {
                   )}
                   keyExtractor={(item, index) => index.toString()}
                   ItemSeparatorComponent={this._renderSeparator}
-                  ref={this._onRef}
+                  ref={this._onRef(item)}
                 />
               </View>
             )
