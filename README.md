@@ -10,25 +10,24 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 
 ## 特性
 
-1. 通过简单的接入即可在App内查看日志。
+1. 通过简单的接入即可在App内查看日志，提供优美的日志格式展示。
 2. 结合 [WTConsoleServer](https://gitee.com/UnPourTous/wt-console-server) 可以很方便的实现日志上传功能。
+
+## 截图
+
+![](./images/screenshot.png)
 
 # 基本用法
 
-将`TianYan`嵌入到App最外层View中，具体用法可以参考`exmaple`目录
+将`TianYan`嵌入到App最外层View中：
+
 ``` jsx
 export default class SimpleApp extends Component {
   render () {
     return (
       <View style={styles.container}>
         {/* other view */}
-        <TianYan options={{
-          logServerUrl: 'http://23lab.com:3000/v1/log',
-          maxLogLine: 1000,
-          ignoreFilter: function () { // 根据自定义规则过滤日志，避免手机端显示太多无用信息
-            return (arguments && typeof arguments[0] === 'string' && arguments[0].indexOf('ignored log') === 0)
-          }
-        }} />
+        <TianYans />
       </View>
     )
   }
