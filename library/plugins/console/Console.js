@@ -59,7 +59,7 @@ export default class Console extends Plugin {
         // const callstackArr = callStack.split(' at ').map(item => item.split(' ')[0])
 
         const formattedLog = {
-          ts: Date.now(),
+          timestamp: Date.now(),
           msg: args,
           logType: method
         }
@@ -110,20 +110,6 @@ export default class Console extends Plugin {
 
     /* 渲染错误日志就不打印了，否则会陷入死循环 */
     if (Console.currentInstance && !Console.currentInstance._isRender) {
-      // if (Console.currentInstance.state.logList && Console.currentInstance.state.logList.length > maxLogLine) {
-      //   Console.currentInstance.state.logList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
-      // }
-
-      let item
-      if (this._tmpConsoleGroup) {
-        item = this._tmpConsoleGroup
-      } else {
-        item = {
-          ...formattedLog,
-          category: formattedLog.logType
-        }
-      }
-      // this.rawConsole.log('item:', item)
       Console.currentInstance.setState({
         logList: Console.cachedLogList
       })
@@ -159,13 +145,21 @@ export default class Console extends Plugin {
     )
   }
 
+  _onRef = (ref) => {
+    this.flatList = ref
+  }
+
+  _gotoBottom = () => {
+    this.flatList && this.flatList.scrollToEnd()
+  }
+
   render () {
     this._isRender = true
     const {
       logList
     } = this.state
     const {logServerUrl = ''} = Console.options || {}
-    const methodList = ['All', 'Warn', 'Error', 'Network']
+    const methodList = ['All', 'Warn', 'Error']
     return (
       <View
         style={{
@@ -197,6 +191,7 @@ export default class Console extends Plugin {
                   )}
                   keyExtractor={(item, index) => index.toString()}
                   ItemSeparatorComponent={this._renderSeparator}
+                  ref={this._onRef}
                 />
               </View>
             )
@@ -210,6 +205,30 @@ export default class Console extends Plugin {
             borderColor: Console.theme.borderColorGray,
             flexDirection: 'row'
           }}>
+          <TouchableOpacity
+            onPress={this._gotoBottom}
+            underlayColor={'#EEE'}
+            style={{
+              flex: 1
+            }}>
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderColor: Console.theme.borderColorGray,
+                flex: 1
+              }}>
+              <Text style={{
+                color: '#414951'
+              }}>Bottom</Text>
+            </View>
+          </TouchableOpacity>
+          <View
+            style={{
+              width: 0,
+              borderRightWidth: 1 / PixelRatio.get(),
+              borderColor: Console.theme.borderColorGray
+            }} />
           <TouchableOpacity
             onPress={this._onPressUpload.bind(this)}
             underlayColor={'#EEE'}
@@ -270,44 +289,23 @@ export default class Console extends Plugin {
   }
 
   _onPressUpload () {
-    const {logServerUrl = null, customData = null} = Console.options
-    if (!logServerUrl) {
-      console.log('You must set logServerUrl when register Console')
-      return
+    const {addToRemote} = Console.options
+    if (addToRemote) {
+      this.setState({showLoading: true})
+      addToRemote(Console.cachedLogList)
+        .then(() => {
+          this.setState({
+            showResult: true,
+            uploadedLogId: 'temp'
+          })
+        })
+        .catch((err) => {
+          this.setState({
+            showLoading: false
+          })
+          console.error(err)
+        })
     }
-    this.setState({showLoading: true})
-    let body = {
-      logList: this.state.logList
-    }
-    if (customData) {
-      for (let key in customData) {
-        body[key] = customData[key]
-      }
-    }
-    fetch(logServerUrl, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    }).then(response => {
-      this.setState({
-        showLoading: false
-      })
-      return response.json()
-    }).then((responseJson) => {
-      this.setState({
-        showResult: true,
-        uploadedLogId: (responseJson && responseJson.id) ? responseJson.id : ''
-      })
-      console.log(responseJson)
-    }, error => {
-      console.warn(error)
-      this.setState({
-        showLoading: false
-      })
-    })
   }
 
   _onPressClean () {

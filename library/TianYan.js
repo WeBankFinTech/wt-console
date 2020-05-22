@@ -23,7 +23,7 @@ export default class TianYan extends Component {
 
   constructor (props) {
     super(props)
-    Dashboard.register(Console, {...this.props.options, tabLabel: '日志'}, <Console />)
+    Dashboard.register(Console, {...this.props.options, tabLabel: 'Console'}, <Console />)
     Dashboard.setup()
 
     this.state = {
