@@ -1,12 +1,48 @@
 import React, {Component} from 'react'
 import {
+  // Text as RawText,
   Text,
   View,
-  TouchableOpacity, PixelRatio
+  TouchableOpacity, PixelRatio, Clipboard
 } from 'react-native'
 import PropTypes from 'prop-types'
 import Console from './plugins/console/Console'
+import {isColor, parseCSSStyle} from './isColor'
+
 const realOnePixel = 1 / PixelRatio.get()
+
+// function Text (props) {
+//   return <RawText selectable {...props}>{props.children}</RawText>
+// }
+
+
+const logToString = (tags) => {
+  let eles = []
+  // Console.rawConsole.log('tags', tags, tags.length)
+  for (let i = 0; i < tags.length; i += 1) {
+    let tag = toString(tags[i])
+    let t = tag.split('%c')
+    // Console.rawConsole.log('tag', t)
+    if (t.length > 1) {
+      eles.push(<Text key={i}> {t[0]}</Text>)
+      for (let j = 1; j < t.length; j += 1) {
+        const style = parseCSSStyle(tags[i + j], ['color'])
+        let color
+        if (style.color && isColor(style.color)) {
+          color = style.color
+        }
+        // Console.rawConsole.log('color', t2)
+        eles.push(
+          <Text key={i + '_' + j} style={{color: color}}>{t[j]}</Text>
+        )
+      }
+      i += t.length - 1
+    } else {
+      eles.push(<Text key={i}> {t[0]}</Text>)
+    }
+  }
+  return eles
+}
 
 const FONT_SIZE = 12
 const JSPrimaryTypes = {
@@ -52,7 +88,8 @@ const isArrayType = (value) => {
 }
 const toString = (value) => {
   try {
-    return isPrimaryType(value) ? String(value) : JSON.stringify(value)
+    let str = isPrimaryType(value) ? String(value) : JSON.stringify(value)
+    return str || 'unknow value'
   } catch (err) {
     return err.toString()
   }
@@ -75,24 +112,63 @@ class Card extends Component {
   }
 }
 
+class Copy extends Component {
+  static propTypes = {
+    log: PropTypes.any
+  }
+  copy = () => {
+    if (this.props.log) {
+      try {
+        const str = JSON.stringify(this.props.log, null, 2)
+        Clipboard.setString(str)
+      } catch (err) {
+        Clipboard.setString('Copy Error: ' + err)
+      }
+    }
+  }
+  render () {
+    return (
+      <TouchableOpacity
+        onPress={this.copy}
+        activeOpacity={0.5}
+        style={{
+          justifyContent: 'center',
+          marginRight: 5,
+          paddingVertical: 5,
+          paddingHorizontal: 10,
+          backgroundColor: '#DDDDDD',
+          borderRadius: 5
+        }}
+      >
+        <Text style={{fontSize: FONT_SIZE, fontWeight: 'bold', color: 'crimson'}}>Copy</Text>
+      </TouchableOpacity>
+    )
+  }
+}
+
 class Arrow extends Component {
   render () {
     const {
       show,
-      str
+      str,
+      log
     } = this.props
     return (
-      <TouchableOpacity
-        onPress={this.props.onPress}
-        activeOpacity={0.5}
-      >
-        <View style={{flexDirection: 'row', marginVertical: 5}}>
-          <Text style={{fontSize: FONT_SIZE}}>{show ? '👇' : '👉️'}</Text>
-          <Text
-            style={[{flex: 1, color: this.props.color, fontSize: FONT_SIZE}, this.props.isGroup ? {fontWeight: 'bold'} : null]}
-            numberOfLines={show && this.props.isGroup ? undefined : 1}>{str}</Text>
-        </View>
-      </TouchableOpacity>
+      <View style={{flexDirection: 'row', marginVertical: 5, alignItems: 'center'}}>
+        <TouchableOpacity
+          onPress={this.props.onPress}
+          activeOpacity={0.5}
+          style={{flex: 1}}
+        >
+          <View style={{flexDirection: 'row'}}>
+            <Text style={{fontSize: FONT_SIZE}}>{show ? '👇' : '👉️'}</Text>
+            <Text
+              style={[{flex: 1, color: this.props.color, fontSize: FONT_SIZE}, this.props.isGroup ? {fontWeight: 'bold'} : null]}
+              numberOfLines={show && this.props.isGroup ? undefined : 1}>{str}</Text>
+          </View>
+        </TouchableOpacity>
+        {show ? <Copy log={log} /> : null}
+      </View>
     )
   }
 }
@@ -201,7 +277,7 @@ class JSValue extends Component {
       const str = toString(value)
       return (
         <View style={[{margin: 5}, style]}>
-          <Arrow show={show} str={str} onPress={this._onToggle} />
+          <Arrow show={show} str={str} log={value} onPress={this._onToggle} />
           {show ? <Card><JSArray value={value} /></Card> : null}
         </View>
       )
@@ -209,7 +285,7 @@ class JSValue extends Component {
       const str = toString(value)
       return (
         <View style={[{margin: 5}, style]}>
-          <Arrow show={show} str={str} onPress={this._onToggle} />
+          <Arrow show={show} str={str} log={value} onPress={this._onToggle} />
           {show ? <Card><Text style={{fontSize: FONT_SIZE}}>{JSON.stringify(value, null, 2)}</Text></Card> : null}
         </View>
       )
@@ -260,39 +336,13 @@ class Log extends Component {
     const bgColor = color ? `${color}55` : undefined
     return (
       <View style={[{backgroundColor: bgColor}, this.props.style]}>
-        <Arrow color={color} show={show} str={str} onPress={this._onToggle} />
+        <Arrow color={color} show={show} str={str} log={value} onPress={this._onToggle} />
         {show ? <Card>{value.map((item, index) => <Item style={{marginTop: 5}} key={index} value={item} />)}</Card> : null}
       </View>
     )
   }
 }
-const logToString = (tags) => {
-  let eles = []
-  // Console.rawConsole.log('tags', tags, tags.length)
-  for (let i = 0; i < tags.length; i += 1) {
-    let tag = toString(tags[i])
-    let t = tag.split('%c')
-    // Console.rawConsole.log('tag', t)
-    if (t.length > 1) {
-      eles.push(<Text key={i}> {t[0]}</Text>)
-      for (let j = 1; j < t.length; j += 1) {
-        let t2 = (tags[i + j] || '').split(/:(?:\s+)?/)
-        let color = (t2[1] || '').trim()
-        if (!color || color.indexOf('inherit') > -1) {
-          color = undefined
-        }
-        // Console.rawConsole.log('color', t2)
-        eles.push(
-          <Text key={i + '_' + j} style={{color: color}}>{t[j]}</Text>
-        )
-      }
-      i += t.length - 1
-    } else {
-      eles.push(<Text key={i}> {t[0]}</Text>)
-    }
-  }
-  return eles
-}
+
 class Group extends Component {
   static propTypes = {
     value: PropTypes.any
@@ -320,9 +370,10 @@ class Group extends Component {
       show
     } = this.state
     const str = logToString(tag)
+    const list = [tag, ...value]
     return (
       <View>
-        <Arrow isGroup show={show} str={str} onPress={this._onToggle} />
+        <Arrow isGroup show={show} str={str} log={list} onPress={this._onToggle} />
         {show
           ? <Card>
             {value.map((item, index) => (

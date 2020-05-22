@@ -78,12 +78,12 @@ export default class Console extends Plugin {
   // TODO 用环形链表来实现这里的功能
   static addLog (formattedLog) {
     // 把groupCollapsed组合成一组
-    this.rawConsole.log(`formattedLog${formattedLog.logType}:`, formattedLog)
+    // this.rawConsole.log(`formattedLog${formattedLog.logType}:`, formattedLog)
     if (formattedLog.logType === 'groupCollapsed' && !this._tmpConsoleGroup && !this._concatGroup) {
       this._tmpConsoleGroup = {
         ...formattedLog,
         logList: [],
-        category: 'network'
+        category: 'group'
       }
       this._concatGroup = true
       return
@@ -98,17 +98,21 @@ export default class Console extends Plugin {
       return
     }
 
-    const {maxLogLine = 1000} = Console.options
-    if (Console.cachedLogList && Console.cachedLogList.length > maxLogLine) {
-      Console.cachedLogList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
+    // const {maxLogLine = 1000} = Console.options
+    // if (Console.cachedLogList && Console.cachedLogList.length > maxLogLine) {
+    //   Console.cachedLogList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
+    // }
+    Console.cachedLogList = [...Console.cachedLogList, this._tmpConsoleGroup || formattedLog]
+    if (formattedLog.logType === 'groupEnd') {
+      this._tmpConsoleGroup = null
+      this._concatGroup = false
     }
-    Console.cachedLogList = [this._tmpConsoleGroup || formattedLog, ...Console.cachedLogList]
 
     /* 渲染错误日志就不打印了，否则会陷入死循环 */
     if (Console.currentInstance && !Console.currentInstance._isRender) {
-      if (Console.currentInstance.state.logList && Console.currentInstance.state.logList.length > maxLogLine) {
-        Console.currentInstance.state.logList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
-      }
+      // if (Console.currentInstance.state.logList && Console.currentInstance.state.logList.length > maxLogLine) {
+      //   Console.currentInstance.state.logList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
+      // }
 
       let item
       if (this._tmpConsoleGroup) {
@@ -119,16 +123,12 @@ export default class Console extends Plugin {
           category: formattedLog.logType
         }
       }
-      this.rawConsole.log('item:', item)
-      Console.currentInstance.state.logList = [item, ...Console.currentInstance.state.logList]
+      // this.rawConsole.log('item:', item)
       Console.currentInstance.setState({
-        logList: Console.currentInstance.state.logList
+        logList: Console.cachedLogList
       })
     }
-    if (formattedLog.logType === 'groupEnd') {
-      this._tmpConsoleGroup = null
-      this._concatGroup = false
-    }
+
   }
 
   constructor (props) {
@@ -153,33 +153,6 @@ export default class Console extends Plugin {
     Console.currentInstance = null
   }
 
-  static everyTypeToString (val) {
-    if (!arguments) {
-      if (arguments.length === 1) {
-        if (val !== null && typeof val === 'object') {
-          return Console.strongJSONStringify(val)
-        } else {
-          return val
-        }
-      } else {
-
-      }
-    }
-  }
-
-  static strongJSONStringify (obj) {
-    const seen = []
-    return JSON.stringify(obj, (key, val) => {
-      if (val !== null && typeof val === 'object') {
-        if (seen.indexOf(val) >= 0) {
-          return
-        }
-        seen.push(val)
-      }
-      return val
-    })
-  }
-
   _renderSeparator = () => {
     return (
       <View style={{height: realOnePixel, backgroundColor: '#AAAAAA'}} />
@@ -188,9 +161,11 @@ export default class Console extends Plugin {
 
   render () {
     this._isRender = true
+    const {
+      logList
+    } = this.state
     const {logServerUrl = ''} = Console.options || {}
     const methodList = ['All', 'Warn', 'Error', 'Network']
-    const logList = this.state.logList.sort((a, b) => b.ts - a.ts)
     return (
       <View
         style={{
@@ -292,9 +267,6 @@ export default class Console extends Plugin {
         <Loading visibility={this.state.showLoading} />
       </View>
     )
-  }
-
-  _onPressLog () {
   }
 
   _onPressUpload () {
