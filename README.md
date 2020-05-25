@@ -1,6 +1,8 @@
 # WTConsole——React Native应用内日志工具
 
-[![JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+[![Open Source Love](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://shields.io/)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
 
 注：从[WeTrident项目](https://gitee.com/WeBank/WeTrident)提炼而来。
 
