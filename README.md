@@ -34,3 +34,13 @@ export default class SimpleApp extends Component {
 }
 ```
 
+## 我们的其他项目❤️ 
+
+- [WeTrident](https://github.com/WeBankFinTech/WeTrident): 一站式App开发套件。
+- [React Native Search List](https://github.com/UnPourTous/react-native-search-list): A searchable ListView which supports Chinese PinYin and alphabetical index.
+- [React Native Popup Stub](https://github.com/UnPourTous/react-native-popup-stub): A smart popup container.
+- [WT Console Server](https://github.com/UnPourTous/wt-console-server): An open source log manager backend.
+
+
+
+
