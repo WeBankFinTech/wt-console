@@ -19,7 +19,7 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 
 ![](./images/screenshot.png)
 
-# 📗 基本用法
+## 📗 基本用法
 
 将`TianYan`嵌入到App最外层View中：
 
