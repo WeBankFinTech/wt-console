@@ -6,7 +6,7 @@ import {
 } from 'react-native'
 import React, { Component } from 'react'
 
-import TianYan from '@unpourtous/tianyan-react-native'
+import TianYan from './library/index'
 
 export default class AppEntry extends Component {
   render () {
@@ -51,10 +51,8 @@ export default class AppEntry extends Component {
       // console.log('%s %s', 'hello', 'world')
       // console.log('%o %i', {a: 1, b: 2, c: {a: 'foo', d: 'bar'}}, 1000)
       // console.log(undefined, 'second params')
-      console.log()
-
       console.log('ignored log, this will not display in tianyan dashboard')
-      console.log('%o %i', {a: 1, b: 2, c: {a: 'foo', d: 'bar'}}, 1000)
+      console.log({a: 1, b: 2, c: {a: 'foo', d: 'bar'}})
       // console.log('x ignored log, this will display in tianyan dashboard')
     }
   }

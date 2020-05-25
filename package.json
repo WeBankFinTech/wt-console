@@ -38,7 +38,7 @@
     "eslint-plugin-standard": "^2.3.1",
     "moment": "^2.22.2",
     "react": "^16.0.0-alpha.12",
-    "react-native": "^0.51.0",
+    "react-native": "git+https://gitee.com/UnPourTous/react-native.git#release/0.51.11",
     "standard": "^9.0.0"
   },
   "peerDependencies": {
