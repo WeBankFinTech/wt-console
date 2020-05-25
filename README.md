@@ -27,7 +27,7 @@ export default class SimpleApp extends Component {
     return (
       <View style={styles.container}>
         {/* other view */}
-        <TianYans />
+        <TianYan />
       </View>
     )
   }
