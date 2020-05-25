@@ -1,4 +1,4 @@
-# WTConsole——React Native应用内日志工具
+# WTConsole - React Native应用内日志工具
 
 [![Open Source Love](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://shields.io/)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
