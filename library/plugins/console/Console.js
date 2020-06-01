@@ -11,8 +11,7 @@ import Plugin from '../Plugin'
 import Loading from './components/Loading'
 import ResultBoard from './components/ResultBoard'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
-// import Log from './Log'
-import { Log, Group, realOnePixel } from '../../DumpObject'
+import { Log, Group, realOnePixel } from './utils/DumpObject'
 
 const METHOD_LIST = ['All', 'Warn', 'Error']
 
@@ -71,10 +70,254 @@ export default class Console extends Plugin {
           rawLog(...args)
         } else {
           rawLog(...args)
-          Console.addLog(formattedLog)
+          // Console.addLog(formattedLog)
         }
       }
     })
+    const awaitTime = async (time) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(resolve, time)
+      })
+    }
+    setTimeout(async () => {
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some warn, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'warn'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info'
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some error, you can press to show the details',
+          new Error('a runtime error').stack
+        ],
+        logType: 'error'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info'
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here a group, you can press to show the details:'
+        ],
+        logType: 'groupCollapsed'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some warn, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'warn'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some error, you can press to show the details',
+          new Error('a runtime error').stack
+        ],
+        logType: 'error'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [],
+        logType: 'groupEnd'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+      Console.addLog({
+        timestamp: Date.now(),
+        msg: [
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
+        ],
+        logType: 'log'
+      })
+    }, 5000)
   }
 
   // TODO 用环形链表来实现这里的功能

@@ -1,20 +1,14 @@
 import React, {Component} from 'react'
 import {
-  // Text as RawText,
   Text,
   View,
   TouchableOpacity, PixelRatio, Clipboard
 } from 'react-native'
 import PropTypes from 'prop-types'
-import Console from './plugins/console/Console'
 import {isColor, parseCSSStyle} from './isColor'
+// import Console from '../Console'
 
 const realOnePixel = 1 / PixelRatio.get()
-
-// function Text (props) {
-//   return <RawText selectable {...props}>{props.children}</RawText>
-// }
-
 
 const logToString = (tags) => {
   let eles = []
@@ -54,11 +48,6 @@ const JSPrimaryTypes = {
   symbol: 'symbol'
 }
 
-const JSCompositeTypes = {
-  array: 'array',
-  object: 'object',
-}
-
 const getPrimaryType = (value) => {
   let type = typeof value
   if (value === null) {
@@ -93,10 +82,6 @@ const toString = (value) => {
   } catch (err) {
     return err.toString()
   }
-}
-
-const arrayToString = (value) => {
-  return value.map((item) => toString(item)).join(' ')
 }
 
 class Card extends Component {
@@ -154,14 +139,14 @@ class Arrow extends Component {
       log
     } = this.props
     return (
-      <View style={{flexDirection: 'row', marginVertical: 5, alignItems: 'center'}}>
+      <View style={{flexDirection: 'row', marginVertical: 5}}>
         <TouchableOpacity
           onPress={this.props.onPress}
           activeOpacity={0.5}
           style={{flex: 1}}
         >
           <View style={{flexDirection: 'row'}}>
-            <Text style={{fontSize: FONT_SIZE}}>{show ? '👇' : '👉️'}</Text>
+            <Text style={{fontSize: FONT_SIZE, marginRight: 5}}>{show ? '👇' : '👉️'}</Text>
             <Text
               style={[{flex: 1, color: this.props.color, fontSize: FONT_SIZE}, this.props.isGroup ? {fontWeight: 'bold'} : null]}
               numberOfLines={show && this.props.isGroup ? undefined : 1}>{str}</Text>
@@ -312,7 +297,7 @@ class Log extends Component {
     })
   }
   componentDidCatch (error) {
-    Console.rawConsole.log(error)
+    // Console.rawConsole.log(error)
   }
   _getColor () {
     const {
@@ -359,7 +344,7 @@ class Group extends Component {
     })
   }
   componentDidCatch (error) {
-    Console.rawConsole.log(error)
+    // Console.rawConsole.log(error)
   }
   render () {
     const {
@@ -379,7 +364,7 @@ class Group extends Component {
             {value.map((item, index) => (
               <Log
                 key={index}
-                style={[{marginTop: 5}, index > 0 ? {borderTopWidth: realOnePixel, borderTopColor: '#AAAAAA'} : null]}
+                style={{marginTop: 5, borderTopWidth: realOnePixel, borderTopColor: '#AAAAAA'}}
                 value={item.msg}
                 logType={item.logType} />
             ))}</Card>
