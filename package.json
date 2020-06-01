@@ -1,5 +1,5 @@
 {
-  "name": "@unpourtous/wt-console",
+  "name": "@webank/wt-console",
   "version": "1.2.0",
   "description": "A lightweight, extendable rn developer and tester tool",
   "main": "library/index.js",
