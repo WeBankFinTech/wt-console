@@ -1,4 +1,4 @@
-# WTConsole - React Native应用内日志工具
+# wt-console - React Native应用内日志工具
 
 [![Open Source Love](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://shields.io/)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
@@ -13,7 +13,7 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 ## 🌱 特性
 
 1. 通过简单的接入即可在App内查看日志，提供优美的日志格式展示。
-2. 结合 [WTConsoleServer](https://gitee.com/UnPourTous/wt-console-server) 可以很方便的实现日志上传功能。
+2. 结合 [wt-console-server](https://gitee.com/UnPourTous/wt-console-server) 可以很方便的实现日志上传功能。
 
 ## 📱 截图
 
