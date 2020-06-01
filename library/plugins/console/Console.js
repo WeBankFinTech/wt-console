@@ -109,7 +109,13 @@ export default class Console extends Plugin {
       Console.addLog({
         timestamp: Date.now(),
         msg: [
-          'here some info'
+          'here some info, you can press to show the details:',
+          {
+            name: 'wt-console',
+            version: '1.2.0',
+            desc: 'A lightweight, extendable rn developer and tester tool',
+            github: 'https://github.com/WeBankFinTech/wt-console'
+          }
         ],
         logType: 'log'
       })
@@ -190,7 +196,8 @@ export default class Console extends Plugin {
       Console.addLog({
         timestamp: Date.now(),
         msg: [
-          'here some info, you can press to show the details:',
+          '%chere some info, you can press to show the details:',
+          'color: green',
           {
             name: 'wt-console',
             version: '1.2.0',
@@ -203,7 +210,8 @@ export default class Console extends Plugin {
       Console.addLog({
         timestamp: Date.now(),
         msg: [
-          'here some info, you can press to show the details:',
+          '%chere some info, you can press to show the details:',
+          'color: #00A',
           {
             name: 'wt-console',
             version: '1.2.0',
@@ -216,7 +224,8 @@ export default class Console extends Plugin {
       Console.addLog({
         timestamp: Date.now(),
         msg: [
-          'here some info, you can press to show the details:',
+          '%chere some info, you can press to show the details:',
+          'color: #AA0',
           {
             name: 'wt-console',
             version: '1.2.0',
