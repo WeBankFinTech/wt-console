@@ -1,22 +1,20 @@
 {
   "name": "@unpourtous/wt-console",
   "version": "1.2.0",
-  "description": "React Native component for both Android and iOS",
+  "description": "A lightweight, extendable rn developer and tester tool",
   "main": "library/index.js",
   "keywords": [
-    "react-native"
+    "react-native",
+    "console",
+    "wt-console"
   ],
-  "author": "erichua",
+  "author": "webank",
   "license": "MIT",
   "scripts": {
     "start": "node_modules/react-native/scripts/packager.sh",
     "test": "jest"
   },
   "dependencies": {
-    "lodash": "^4.17.13",
-    "morgan": "^1.9.1",
-    "prop-types": "^15.7.2",
-    "react-native-json-tree": "^1.2.0",
     "react-native-scrollable-tab-view": "^0.10.0"
   },
   "jest": {
@@ -36,15 +34,11 @@
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-react": "^6.10.3",
     "eslint-plugin-standard": "^2.3.1",
-    "moment": "^2.22.2",
-    "react": "^16.0.0-alpha.12",
-    "react-native": "git+https://gitee.com/UnPourTous/react-native.git#release/0.51.11",
+    "prop-types": "^15.7.2",
     "standard": "^9.0.0"
   },
   "peerDependencies": {
     "react": "16.0.0-alpha.6",
-    "react-native": "^0.40.0",
-    "moment": "^2.22.2",
-    "react-native-scrollable-tab-view": "^0.8.0"
+    "react-native": "^0.40.0"
   }
 }

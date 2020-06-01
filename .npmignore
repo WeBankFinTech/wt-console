@@ -4,8 +4,6 @@ ios/
 .idea/
 node_modules/
 yarn-error.log
-node_modules/
-.idea/
 yarn.lock
 npm-debug.log
 __tests__/
