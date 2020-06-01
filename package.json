@@ -9,7 +9,7 @@
     "wt-console"
   ],
   "author": "webank",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "start": "node_modules/react-native/scripts/packager.sh",
     "test": "jest"
