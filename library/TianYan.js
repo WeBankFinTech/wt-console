@@ -160,13 +160,18 @@ export default class TianYan extends Component {
   _getDashboardAnimatedStyle () {
     return {
       opacity: this.state.expendAnim.interpolate({
-        inputRange: [0, 100],
-        outputRange: [1, 0],
+        inputRange: [0, 80, 100],
+        outputRange: [1, 1, 0],
       }),
       transform: [{
         translateY: this.state.expendAnim.interpolate({
           inputRange: [0, 100],
           outputRange: [0, height]
+        })
+      }, {
+        translateX: this.state.expendAnim.interpolate({
+          inputRange: [0, 100],
+          outputRange: [0, width]
         })
       }]
     }
@@ -204,7 +209,8 @@ export default class TianYan extends Component {
           top: 0,
           left: 0,
           width: width,
-          height: height
+          height: height,
+          zIndex: 9999
         }, this._getDashboardAnimatedStyle()]}>
         <View style={{
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
