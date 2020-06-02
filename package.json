@@ -15,7 +15,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "react-native-scrollable-tab-view": "^0.10.0"
   },
   "jest": {
     "preset": "react-native"

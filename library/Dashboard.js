@@ -4,7 +4,7 @@ import {
 
 import React, { Component } from 'react'
 import Console from './plugins/console/Console'
-import ScrollableTabView from 'react-native-scrollable-tab-view'
+import Tab from './components/Tab'
 
 export default class Dashboard extends Component {
   static registeredPlugins = []
@@ -46,31 +46,14 @@ export default class Dashboard extends Component {
       <View style={{
         flex: 1
       }}>
-        <ScrollableTabView
-          initialPage={0}
-          locked
-          tabBarBackgroundColor="#fff"
-          tabBarTextStyle={{
-            fontSize: 15,
-            lineHeight: 18}}
-        >
-          {
-            /* body */
-            pluginArr.map((item, index) => {
-              return (
-                <View
-                  key={index}
-                  tabLabel={item.options.tabLabel}
-                  style={{
-                    flex: 1,
-                    alignSelf: 'stretch'
-                  }}>
-                  {item.element}
-                </View>
-              )
-            })
-          }
-        </ScrollableTabView>
+        <Tab
+          style={{flex: 1, backgroundColor: 'white'}}
+          pages={pluginArr.map((item) => ({
+            title: item.options.tabLabel,
+            renderContent: () => item.element
+          }))}
+          initPage={0}
+        />
       </View>
     )
   }

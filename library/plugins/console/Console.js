@@ -10,8 +10,8 @@ import React from 'react'
 import Plugin from '../Plugin'
 import Loading from './components/Loading'
 import ResultBoard from './components/ResultBoard'
-import ScrollableTabView from 'react-native-scrollable-tab-view'
 import { Log, Group, realOnePixel } from './utils/DumpObject'
+import Tab from '../../components/Tab'
 
 const METHOD_LIST = ['All', 'Warn', 'Error']
 
@@ -148,8 +148,8 @@ export default class Console extends Plugin {
     )
   }
 
-  _onChange = ({i}) => {
-    this.currentMethod = METHOD_LIST[i]
+  _onChange = (index) => {
+    this.currentMethod = METHOD_LIST[index]
   }
   _onRef = (method) => {
     return (ref) => {
@@ -173,30 +173,22 @@ export default class Console extends Plugin {
           flex: 1,
           backgroundColor: '#FFFFFF'
         }}>
-        <ScrollableTabView
-          initialPage={0}
-          locked
-          tabBarBackgroundColor='#fff'
-          tabBarTextStyle={{
-            fontSize: 12,
-            lineHeight: 14}}
-          onChangeTab={this._onChange}>
-          {METHOD_LIST.map((item, index) => {
+        <Tab
+          style={{flex: 1}}
+          onChangePage={this._onChange}
+          initPage={0}
+          pages={METHOD_LIST.map((item, index) => {
             let consoleList = logList.filter(logItem =>
               item === 'All' ||
               item.toLowerCase() === logItem.category ||
               item.toLowerCase() === logItem.logType
             )
-            return (
-              <View key={index}
-                    tabLabel={item}
-                    style={{
-                      flex: 1,
-                      alignSelf: 'stretch'
-                    }}>
+            return {
+              title: item,
+              renderContent: () => (
                 <FlatList
                   data={consoleList}
-                  renderItem={({item, index, separators}) => (
+                  renderItem={({item}) => (
                     item.logType === 'groupCollapsed'
                       ? <Group tag={item.msg} value={item.logList} />
                       : <Log value={item.msg} logType={item.logType} />
@@ -205,10 +197,10 @@ export default class Console extends Plugin {
                   ItemSeparatorComponent={this._renderSeparator}
                   ref={this._onRef(item)}
                 />
-              </View>
-            )
+              )
+            }
           })}
-        </ScrollableTabView>
+        />
         <View
           style={{
             height: 45,
