@@ -9,7 +9,32 @@ import {isColor, parseCSSStyle} from './isColor'
 // import Console from '../Console'
 
 const realOnePixel = 1 / PixelRatio.get()
-
+const logsToString = (tags) => {
+  let strList = []
+  // Console.rawConsole.log('tags', tags, tags.length)
+  for (let i = 0; i < tags.length; i += 1) {
+    let tag = toString(tags[i], 2)
+    let t = tag.split('%c')
+    // Console.rawConsole.log('tag', t)
+    if (t.length > 1) {
+      let str = t[0]
+      for (let j = 1; j < t.length; j += 1) {
+        const style = parseCSSStyle(tags[i + j], ['color'])
+        let color
+        if (style.color && isColor(style.color)) {
+          color = style.color
+        }
+        // Console.rawConsole.log('color', t2)
+        str += t[j]
+      }
+      strList.push(str)
+      i += t.length - 1
+    } else {
+      strList.push(t[0])
+    }
+  }
+  return strList
+}
 const logToString = (tags) => {
   let eles = []
   // Console.rawConsole.log('tags', tags, tags.length)
@@ -75,9 +100,9 @@ const isObjectType = (value) => {
 const isArrayType = (value) => {
   return Array.isArray(value)
 }
-const toString = (value) => {
+const toString = (value, space) => {
   try {
-    let str = isPrimaryType(value) ? String(value) : JSON.stringify(value)
+    let str = isPrimaryType(value) ? String(value) : JSON.stringify(value, null, space)
     return str || 'unknow value'
   } catch (err) {
     return err.toString()
@@ -102,14 +127,8 @@ class Copy extends Component {
     log: PropTypes.any
   }
   copy = () => {
-    if (this.props.log) {
-      try {
-        const str = JSON.stringify(this.props.log, null, 2)
-        Clipboard.setString(str)
-      } catch (err) {
-        Clipboard.setString('Copy Error: ' + err)
-      }
-    }
+    let str = toString(this.props.log, 2)
+    Clipboard.setString(str)
   }
   render () {
     return (
@@ -321,7 +340,7 @@ class Log extends Component {
     const bgColor = color ? `${color}55` : undefined
     return (
       <View style={[{backgroundColor: bgColor}, this.props.style]}>
-        <Arrow color={color} show={show} str={str} log={value} onPress={this._onToggle} />
+        <Arrow color={color} show={show} str={str} log={logsToString(value).join(' ')} onPress={this._onToggle} />
         {show ? <Card>{value.map((item, index) => <Item style={{marginTop: 5}} key={index} value={item} />)}</Card> : null}
       </View>
     )
@@ -346,6 +365,14 @@ class Group extends Component {
   componentDidCatch (error) {
     // Console.rawConsole.log(error)
   }
+  _toString (tag, list) {
+    return `\
+group: ${logsToString(tag).join(' ')}
+==========
+${list.map((item) => {
+  return `${logsToString(item.msg).join(' ')}`
+}).join('\n==========\n')}`
+  }
   render () {
     const {
       value,
@@ -355,10 +382,9 @@ class Group extends Component {
       show
     } = this.state
     const str = logToString(tag)
-    const list = [tag, ...value]
     return (
       <View>
-        <Arrow isGroup show={show} str={str} log={list} onPress={this._onToggle} />
+        <Arrow isGroup show={show} str={str} log={this._toString(tag, value)} onPress={this._onToggle} />
         {show
           ? <Card>
             {value.map((item, index) => (
