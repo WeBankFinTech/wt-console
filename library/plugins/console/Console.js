@@ -11,9 +11,10 @@ import Plugin from '../Plugin'
 import Loading from './components/Loading'
 import ResultBoard from './components/ResultBoard'
 import { Log, Group, realOnePixel } from './utils/DumpObject'
+import {ProxyFetch, FetchLog} from './utils/ProxyFetch'
 import Tab from '../../components/Tab'
 
-const METHOD_LIST = ['All', 'Warn', 'Error']
+const TAB_LIST = ['All', 'Warn', 'Error', 'Network']
 
 export default class Console extends Plugin {
   static name = 'Console'
@@ -39,6 +40,31 @@ export default class Console extends Plugin {
       return
     }
     Console.isProxy = true
+
+    const proxyFetch = new ProxyFetch(window)
+    proxyFetch.onUpdate((fetchMap) => {
+      Console._fetchList = []
+      fetchMap.forEach((data) => {
+        Console._fetchList.push({
+          isFinish: data.isFinish,
+          rid: data.rid,
+          url: data.url,
+          method: data.method,
+          status: data.status,
+          ok: data.ok,
+          reqHeaders: data.reqHeaders,
+          reqBody: data.reqBody,
+          resBody: data.resBody,
+          error: data.error
+        })
+      })
+      if (Console.currentInstance && !Console.currentInstance._isRender) {
+        Console.currentInstance.setState({
+          fetchList: Console._fetchList
+        })
+      }
+    })
+
     Console.rawConsole = {}
     const methodList = ['log', 'info', 'warn', 'debug', 'error', 'groupEnd', 'groupCollapsed']
 
@@ -131,11 +157,12 @@ export default class Console extends Plugin {
     this.state = {
       logList: Console.cachedLogList,
       showLoading: false,
-      showResult: false
+      showResult: false,
+      fetchList: []
     }
     this._isRender = false
     this._refs = {}
-    this.currentMethod = METHOD_LIST[0]
+    this.currentMethod = TAB_LIST[0]
   }
 
   componentDidMount () {
@@ -156,7 +183,7 @@ export default class Console extends Plugin {
   }
 
   _onChange = (index) => {
-    this.currentMethod = METHOD_LIST[index]
+    this.currentMethod = TAB_LIST[index]
   }
   _onRef = (method) => {
     return (ref) => {
@@ -184,7 +211,25 @@ export default class Console extends Plugin {
           style={{flex: 1}}
           onChangePage={this._onChange}
           initPage={0}
-          pages={METHOD_LIST.map((item, index) => {
+          pages={TAB_LIST.map((item, index) => {
+            if (item === 'Network') {
+              return {
+                title: item,
+                renderContent: () => (
+                  <FlatList
+                    data={this.state.fetchList}
+                    renderItem={({item}) => (
+                      <FetchLog data={item} />
+                    )}
+                    keyExtractor={(item) => item.rid}
+                    ItemSeparatorComponent={this._renderSeparator}
+                    ref={this._onRef(item)}
+                    onEndReachedThreshold={0.5}
+                  />
+                )
+              }
+            }
+
             let consoleList = logList.filter(logItem =>
               item === 'All' ||
               item.toLowerCase() === logItem.category ||
