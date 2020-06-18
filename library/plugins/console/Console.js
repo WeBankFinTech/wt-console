@@ -69,8 +69,15 @@ export default class Console extends Plugin {
         if (ignoreFilter && typeof ignoreFilter === 'function' && ignoreFilter(...args)) {
           rawLog(...args)
         } else {
-          rawLog(...args)
           Console.addLog(formattedLog)
+          if (
+            (Console.options.ignoreRedBox && method === 'error') ||
+            (Console.options.ignoreYellowBox && method === 'warn')
+          ) {
+            // 忽略
+            return
+          }
+          rawLog(...args)
         }
       }
     })
