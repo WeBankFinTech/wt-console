@@ -99,10 +99,10 @@ export default class Console extends Plugin {
       return
     }
 
-    // const {maxLogLine = 1000} = Console.options
-    // if (Console.cachedLogList && Console.cachedLogList.length > maxLogLine) {
-    //   Console.cachedLogList.splice(parseInt(maxLogLine * 0.8), maxLogLine)
-    // }
+    const {maxLogLine = 1000} = Console.options
+    if (Console.cachedLogList && Console.cachedLogList.length > maxLogLine) {
+      Console.cachedLogList.splice(0, Math.floor(maxLogLine * 0.2))
+    }
     Console.cachedLogList = [...Console.cachedLogList, this._tmpConsoleGroup || formattedLog]
     if (formattedLog.logType === 'groupEnd') {
       this._tmpConsoleGroup = null
@@ -196,6 +196,7 @@ export default class Console extends Plugin {
                   keyExtractor={(item, index) => index.toString()}
                   ItemSeparatorComponent={this._renderSeparator}
                   ref={this._onRef(item)}
+                  onEndReachedThreshold={0.5}
                 />
               )
             }
