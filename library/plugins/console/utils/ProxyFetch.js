@@ -1,9 +1,11 @@
 import React, {Component} from 'react'
 import {
   View,
-  Text,
   TouchableOpacity
 } from 'react-native'
+import StyleValues from './StyleValues'
+import * as URL from 'url'
+import Text from './Text'
 
 const getRid = (() => {
   let id = -1
@@ -25,6 +27,10 @@ class ProxyFetch {
     }
   }
 
+  getDataMap () {
+    return this._dataMap
+  }
+
   onUpdate (cb) {
     this._callback.push(cb)
   }
@@ -36,16 +42,21 @@ class ProxyFetch {
   }
 
   _reqBody2string (res) {
-    const contentType = res.headers.get('content-type') || ''
+    const res2 = res.clone()
+    const contentType = res2.headers.get('content-type') || ''
     if (contentType.indexOf('application/json') === 0) {
-      return res.json().then((jsonObj) => {
+      return res2.json().then((jsonObj) => {
+        console.log(jsonObj)
         return JSON.stringify(jsonObj, null, 2)
+      }).catch((err) => {
+        console.log(err.toString())
+        return err.toString()
       })
     } else if (
       contentType.indexOf('text/plain') === 0 ||
       contentType.indexOf('text/html') === 0
     ) {
-      return res.body.text()
+      return res2.text()
     } else {
       return Promise.resolve('blob data')
     }
@@ -70,8 +81,11 @@ class ProxyFetch {
     if (init && typeof init.body === 'string') {
       reqBody = init.body
     }
+    const urlInfo = URL.parse(req.url)
     const data = {
       rid: rid,
+      hostname: urlInfo.hostname,
+      path: urlInfo.pathname + (urlInfo.search || ''),
       url: req.url,
       method: req.method,
       reqHeaders: this._parseHeaders(req.headers),
@@ -123,37 +137,84 @@ class FetchLog extends Component {
       isShow: !this.state.isShow
     })
   }
+  _getColor (status) {
+    if (
+      (status >= 100 && status < 200) ||
+      (status >= 200 && status < 300)
+    ) {
+      return StyleValues.SuccessColor
+    } else if (status >= 300 && status < 400) {
+      return StyleValues.WarningColor
+    } else if (
+      (status >= 400 && status < 500) ||
+      (status >= 500 && status < 600)
+    ) {
+      return StyleValues.ErrorColor
+    } else {
+      return StyleValues.GrayColor
+    }
+  }
+  _getShowList (data) {
+    const keys = ['method', 'url', 'reqHeaders', 'reqBody', 'resHeaders', 'resBody', 'error']
+    const showList = []
+    keys.forEach((key) => {
+      if (typeof data[key] === 'string' && data[key]) {
+        if (data[key].length >= 10000) {
+          showList.push({
+            key: key,
+            value: 'Value Too Large'
+          })
+        } else {
+          showList.push({
+            key: key,
+            value: data[key]
+          })
+        }
+      }
+    })
+    return showList
+  }
+  _getStatusDesc (status) {
+    if (status === undefined) {
+      return 'pending'
+    } else {
+      return status
+    }
+  }
   render () {
     const {
       data
     } = this.props
+    const color = this._getColor(data.status)
 
     return (
-      <TouchableOpacity onPress={this._onToggle}>
-        <View style={{
-          flexDirection: 'row',
-          align: 'center'
-        }}>
-          <Text numberOfLines={2} style={{flex: 1}}>{data.url}</Text>
-          <Text>{data.status}</Text>
-        </View>
+      <View>
+        <TouchableOpacity onPress={this._onToggle}>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            padding: 5
+          }}>
+            <Text numberOfLines={1} style={{flex: 1, color: color}}>{data.path}</Text>
+            <Text style={{marginLeft: 5, color: color, fontWeight: 'bold'}}>{this._getStatusDesc(data.status)}</Text>
+          </View>
+        </TouchableOpacity>
         {this.state.isShow
           ? <View>
-            {Object.keys(data).map((key) => {
-              const value = data[key]
+            {this._getShowList(data).map((item) => {
               return (
                 <View style={{
                   flexDirection: 'row',
-                  align: 'center'
-                }} key={key}>
-                  <Text style={{flex: 1}}>{key}</Text>
-                  <Text style={{flex: 5}}>{value}</Text>
+                  padding: 5
+                }} key={item.key}>
+                  <Text style={{flex: 3, fontWeight: 'bold'}}>{item.key}</Text>
+                  <Text style={{flex: 10}}>{item.value}</Text>
                 </View>
               )
             })}
           </View>
           : null}
-      </TouchableOpacity>
+      </View>
     )
   }
 }

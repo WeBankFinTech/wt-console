@@ -22,6 +22,7 @@ export default class Console extends Plugin {
   static isProxy = false
 
   static cachedLogList = []
+  static _fetchList = []
   static currentInstance = null
   static LOG_TYPE = {
     DEBUG: 1,
@@ -41,30 +42,7 @@ export default class Console extends Plugin {
     }
     Console.isProxy = true
 
-    const proxyFetch = new ProxyFetch(window)
-    proxyFetch.onUpdate((fetchMap) => {
-      Console._fetchList = []
-      fetchMap.forEach((data) => {
-        Console._fetchList.push({
-          isFinish: data.isFinish,
-          rid: data.rid,
-          url: data.url,
-          method: data.method,
-          status: data.status,
-          ok: data.ok,
-          reqHeaders: data.reqHeaders,
-          reqBody: data.reqBody,
-          resBody: data.resBody,
-          error: data.error
-        })
-      })
-      if (Console.currentInstance && !Console.currentInstance._isRender) {
-        Console.currentInstance.setState({
-          fetchList: Console._fetchList
-        })
-      }
-    })
-
+    // proxy console
     Console.rawConsole = {}
     const methodList = ['log', 'info', 'warn', 'debug', 'error', 'groupEnd', 'groupCollapsed']
 
@@ -107,6 +85,33 @@ export default class Console extends Plugin {
         }
       }
     })
+
+    // proxy fetch
+    Console._proxyFetch = new ProxyFetch(window)
+    Console._proxyFetch.onUpdate((fetchMap) => {
+      Console._fetchList = []
+      fetchMap.forEach((data) => {
+        Console._fetchList.push(data)
+      })
+      Console.rawConsole.log('updateConsole1', Console._fetchList)
+      if (Console.currentInstance && !Console.currentInstance._isRender) {
+        Console.currentInstance.setState({
+          fetchList: Console._fetchList
+        })
+      }
+    })
+  }
+
+  static _getFetchList () {
+    if (!Console._proxyFetch) {
+      return []
+    }
+    const fetchMap = Console._proxyFetch.getDataMap()
+    Console._fetchList = []
+    fetchMap.forEach((data) => {
+      Console._fetchList.push(data)
+    })
+    return Console._fetchList
   }
 
   // TODO 用环形链表来实现这里的功能
@@ -158,8 +163,9 @@ export default class Console extends Plugin {
       logList: Console.cachedLogList,
       showLoading: false,
       showResult: false,
-      fetchList: []
+      fetchList: Console._getFetchList()
     }
+    Console.rawConsole.log('updateConsole2', this.state.fetchList)
     this._isRender = false
     this._refs = {}
     this.currentMethod = TAB_LIST[0]
