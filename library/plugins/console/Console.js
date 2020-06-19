@@ -93,7 +93,6 @@ export default class Console extends Plugin {
       fetchMap.forEach((data) => {
         Console._fetchList.push(data)
       })
-      Console.rawConsole.log('updateConsole1', Console._fetchList)
       if (Console.currentInstance && !Console.currentInstance._isRender) {
         Console.currentInstance.setState({
           fetchList: Console._fetchList
@@ -165,7 +164,6 @@ export default class Console extends Plugin {
       showResult: false,
       fetchList: Console._getFetchList()
     }
-    Console.rawConsole.log('updateConsole2', this.state.fetchList)
     this._isRender = false
     this._refs = {}
     this.currentMethod = TAB_LIST[0]
