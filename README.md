@@ -18,11 +18,15 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 ## 🌱 特性
 
 1. 通过简单的接入即可在App内查看日志，提供优美的日志格式展示。
-2. 结合 [wt-console-server](https://gitee.com/UnPourTous/wt-console-server) 可以很方便的实现日志上传功能。
+2. 支持配置`ignoreRedBox`、`ignoreYellowBox`，用于屏蔽React Native上的红屏和警告
+3. 支持展示Network信息（目前支持fetch api的展示）
+4. 结合 [wt-console-server](https://gitee.com/UnPourTous/wt-console-server) 可以很方便的实现日志上传功能。
 
 ## 📱 截图
 
 ![](./images/screenshot.png)
+
+![](./images/screenshot2.png)
 
 ## 📗 基本用法
 
