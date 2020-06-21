@@ -19,12 +19,6 @@ const logsToString = (tags) => {
     if (t.length > 1) {
       let str = t[0]
       for (let j = 1; j < t.length; j += 1) {
-        const style = parseCSSStyle(tags[i + j], ['color'])
-        let color
-        if (style.color && isColor(style.color)) {
-          color = style.color
-        }
-        // Console.rawConsole.log('color', t2)
         str += t[j]
       }
       strList.push(str)
@@ -239,19 +233,6 @@ class JSArray extends Component {
     return arr.map((item, index) => (<Item key={index} valueKey={index} value={item} />))
   }
 }
-class JSObject extends Component {
-  static propTypes = {
-    value: PropTypes.any
-  }
-  render () {
-    const {
-      value: obj
-    } = this.props
-    const keys = Object.keys(obj)
-    return keys.map((key) => (<Item key={key} valueKey={key} value={obj[key]} />))
-  }
-}
-
 class JSValue extends Component {
   static propTypes = {
     value: PropTypes.any

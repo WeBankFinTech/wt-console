@@ -3,7 +3,10 @@ import {
   PanResponder,
   Dimensions,
   TouchableOpacity,
-  View
+  View,
+  Image,
+  Text,
+  StyleSheet
 } from 'react-native'
 
 import React, { Component } from 'react'
@@ -18,12 +21,28 @@ const LEFT_X = 0
 const RIGHT_X = width - ICON_SIZE
 export default class TianYan extends Component {
   static propTypes = {
-    options: PropTypes.object.isRequired
+    options: PropTypes.object
   }
 
   constructor (props) {
     super(props)
-    Dashboard.register(Console, {...this.props.options, tabLabel: 'Console'}, <Console />)
+    Dashboard.register(
+      Console,
+      {
+        ...this.props.options,
+        tabLabel: 'Console',
+        updateErrorCount: (errorCount) => {
+          this.setState({
+            errorCount: errorCount
+          })
+        },
+        updateWarnCount: (warnCount) => {
+          this.setState({
+            warnCount: warnCount
+          })
+        }
+      },
+      <Console />)
     Dashboard.setup()
 
     this.state = {
@@ -32,7 +51,9 @@ export default class TianYan extends Component {
         x: RIGHT_X,
         y: 300
       }),
-      showDashboard: false
+      showDashboard: false,
+      errorCount: 0,
+      warnCount: 0
     }
     this.x = RIGHT_X
     this.y = 300
@@ -179,7 +200,9 @@ export default class TianYan extends Component {
 
   render () {
     const {
-      showDashboard
+      showDashboard,
+      errorCount,
+      warnCount
     } = this.state
     return [
       <Animated.View
@@ -190,10 +213,9 @@ export default class TianYan extends Component {
           top: 0,
           left: 0,
           width: ICON_SIZE,
-          height: ICON_SIZE,
           borderRadius: ICON_SIZE / 2
         }, this._getEyeAnimatedStyle()]}>
-        <Animated.Image
+        <Image
           style={{
             width: ICON_SIZE,
             height: ICON_SIZE,
@@ -201,6 +223,12 @@ export default class TianYan extends Component {
           resizeMode={'contain'}
           source={require('./images/tianyan-icon.png')}
         />
+        {errorCount > 0 ? <View style={styles.logRedBox}>
+          <Text style={styles.logCount}>{errorCount}</Text>
+        </View> : null}
+        {warnCount > 0 ? <View style={styles.logWarnBox}>
+          <Text style={styles.logCount}>{warnCount}</Text>
+        </View> : null}
       </Animated.View>,
       <Animated.View
         key={'dashboard'}
@@ -230,3 +258,21 @@ export default class TianYan extends Component {
     ]
   }
 }
+
+const styles = StyleSheet.create({
+  logRedBox: {
+    borderRadius: 10,
+    height: 18,
+    backgroundColor: '#FF0000',
+    alignItems: 'center'
+  },
+  logWarnBox: {
+    borderRadius: 10,
+    height: 18,
+    backgroundColor: '#FFCD36',
+    alignItems: 'center'
+  },
+  logCount: {
+    color: '#FFFFFF'
+  }
+})

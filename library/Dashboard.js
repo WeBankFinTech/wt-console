@@ -3,7 +3,6 @@ import {
 } from 'react-native'
 
 import React, { Component } from 'react'
-import Console from './plugins/console/Console'
 import Tab from './components/Tab'
 
 export default class Dashboard extends Component {

@@ -17,24 +17,15 @@ import Tab from '../../components/Tab'
 const TAB_LIST = ['All', 'Warn', 'Error', 'Network']
 
 export default class Console extends Plugin {
-  static name = 'Console'
-
   static isProxy = false
 
   static cachedLogList = []
   static _fetchList = []
   static currentInstance = null
-  static LOG_TYPE = {
-    DEBUG: 1,
-    WARNING: 2,
-    ERROR: 3
-  }
   static theme = {
     borderColorGray: '#BBC',
     borderColor: '#DDD'
   }
-  _tmpConsoleGroup = null
-  _concatGroup = false
 
   static setup (options) {
     if (Console.isProxy) {
@@ -55,7 +46,7 @@ export default class Console extends Plugin {
 
     Console.options = options || {}
 
-    methodList.map(method => {
+    methodList.forEach(method => {
       window.console[method] = (...args) => {
         // this.rawConsole.log(args)
         const {ignoreFilter} = Console.options
@@ -113,30 +104,45 @@ export default class Console extends Plugin {
     return Console._fetchList
   }
 
+  static _tmpConsoleGroup = null
+  static _concatGroup = false
+  static _errorLogCount = 0
+  static _warnLogCount = 0
   // TODO 用环形链表来实现这里的功能
   static addLog (formattedLog) {
     // 把groupCollapsed组合成一组
     // this.rawConsole.log(`formattedLog${formattedLog.logType}:`, formattedLog)
-    if (formattedLog.logType === 'groupCollapsed' && !this._tmpConsoleGroup && !this._concatGroup) {
-      this._tmpConsoleGroup = {
+    if (formattedLog.logType === 'error') {
+      Console._errorLogCount += 1
+    } else if (formattedLog.logType === 'warn') {
+      Console._warnLogCount += 1
+    }
+    if (formattedLog.logType === 'groupCollapsed' && !Console._tmpConsoleGroup && !Console._concatGroup) {
+      Console._tmpConsoleGroup = {
         ...formattedLog,
         logList: [],
         category: 'group'
       }
-      this._concatGroup = true
+      Console._concatGroup = true
       return
-    } else if (formattedLog.logType !== 'groupEnd' && this._concatGroup) {
-      this._tmpConsoleGroup = {
-        ...this._tmpConsoleGroup,
+    } else if (formattedLog.logType !== 'groupEnd' && Console._concatGroup) {
+      Console._tmpConsoleGroup = {
+        ...Console._tmpConsoleGroup,
         logList: [
-          ...this._tmpConsoleGroup.logList,
+          ...Console._tmpConsoleGroup.logList,
           formattedLog
         ]
       }
       return
     }
 
-    const {maxLogLine = 1000} = Console.options
+    const {
+      maxLogLine = 1000,
+      updateErrorCount,
+      ignoreRedBox,
+      updateWarnCount,
+      ignoreYellowBox
+    } = Console.options
     if (Console.cachedLogList && Console.cachedLogList.length > maxLogLine) {
       Console.cachedLogList.splice(0, Math.floor(maxLogLine * 0.2))
     }
@@ -145,6 +151,9 @@ export default class Console extends Plugin {
       this._tmpConsoleGroup = null
       this._concatGroup = false
     }
+
+    ignoreRedBox && updateErrorCount && updateErrorCount(Console._errorLogCount)
+    ignoreYellowBox && updateWarnCount && updateWarnCount(Console._warnLogCount)
 
     /* 渲染错误日志就不打印了，否则会陷入死循环 */
     if (Console.currentInstance && !Console.currentInstance._isRender) {
@@ -199,6 +208,53 @@ export default class Console extends Plugin {
     this._refs[this.currentMethod] && this._refs[this.currentMethod].scrollToEnd()
   }
 
+  _getKey = (item, index) => {
+    return String(index)
+  }
+
+  _renderLog (logType, logList) {
+    let consoleList = logList.filter(logItem =>
+      logType === 'All' ||
+      logType.toLowerCase() === logItem.category ||
+      logType.toLowerCase() === logItem.logType
+    )
+    return {
+      title: logType + `(${consoleList.length})`,
+      renderContent: () => (
+        <FlatList
+          data={consoleList}
+          renderItem={({item}) => (
+            item.logType === 'groupCollapsed'
+              ? <Group tag={item.msg} value={item.logList} />
+              : <Log value={item.msg} logType={item.logType} />
+          )}
+          keyExtractor={this._getKey}
+          ItemSeparatorComponent={this._renderSeparator}
+          ref={this._onRef(logType)}
+          onEndReachedThreshold={0.5}
+        />
+      )
+    }
+  }
+
+  _renderNetwork (logType) {
+    return {
+      title: logType,
+      renderContent: () => (
+        <FlatList
+          data={this.state.fetchList}
+          renderItem={({item}) => (
+            <FetchLog data={item} />
+          )}
+          keyExtractor={(item) => String(item.rid)}
+          ItemSeparatorComponent={this._renderSeparator}
+          ref={this._onRef(logType)}
+          onEndReachedThreshold={0.5}
+        />
+      )
+    }
+  }
+
   render () {
     this._isRender = true
     const {
@@ -217,45 +273,9 @@ export default class Console extends Plugin {
           initPage={0}
           pages={TAB_LIST.map((item, index) => {
             if (item === 'Network') {
-              return {
-                title: item,
-                renderContent: () => (
-                  <FlatList
-                    data={this.state.fetchList}
-                    renderItem={({item}) => (
-                      <FetchLog data={item} />
-                    )}
-                    keyExtractor={(item) => item.rid}
-                    ItemSeparatorComponent={this._renderSeparator}
-                    ref={this._onRef(item)}
-                    onEndReachedThreshold={0.5}
-                  />
-                )
-              }
+              return this._renderNetwork(item)
             }
-
-            let consoleList = logList.filter(logItem =>
-              item === 'All' ||
-              item.toLowerCase() === logItem.category ||
-              item.toLowerCase() === logItem.logType
-            )
-            return {
-              title: item,
-              renderContent: () => (
-                <FlatList
-                  data={consoleList}
-                  renderItem={({item}) => (
-                    item.logType === 'groupCollapsed'
-                      ? <Group tag={item.msg} value={item.logList} />
-                      : <Log value={item.msg} logType={item.logType} />
-                  )}
-                  keyExtractor={(item, index) => index.toString()}
-                  ItemSeparatorComponent={this._renderSeparator}
-                  ref={this._onRef(item)}
-                  onEndReachedThreshold={0.5}
-                />
-              )
-            }
+            return this._renderLog(item, logList)
           })}
         />
         <View

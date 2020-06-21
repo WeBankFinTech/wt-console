@@ -41,23 +41,26 @@ class ProxyFetch {
     }
   }
 
-  _reqBody2string (res) {
+  _resBody2string (res) {
     const res2 = res.clone()
     const contentType = res2.headers.get('content-type') || ''
     if (contentType.indexOf('application/json') === 0) {
       return res2.json().then((jsonObj) => {
-        console.log(jsonObj)
+        // console.log(jsonObj)
         return JSON.stringify(jsonObj, null, 2)
       }).catch((err) => {
-        console.log(err.toString())
+        // console.log(err.toString())
         return err.toString()
       })
     } else if (
       contentType.indexOf('text/plain') === 0 ||
-      contentType.indexOf('text/html') === 0
+      contentType.indexOf('text/html') === 0 ||
+      contentType.indexOf('application/javascript') === 0 ||
+      contentType.indexOf('application/xml') === 0
     ) {
       return res2.text()
     } else {
+      // console.log(contentType)
       return Promise.resolve('blob data')
     }
   }
@@ -101,23 +104,25 @@ class ProxyFetch {
 
     this._emit()
     p.then((res) => {
-      return this._reqBody2string(res)
+      return this._resBody2string(res)
         .then((bodyStr) => {
           return {
             ok: res.ok,
             status: res.status,
-            body: bodyStr
+            body: bodyStr,
+            headers: this._parseHeaders(res.headers)
           }
         })
     }).then((response) => {
-      console.log('success')
+      // console.log('success')
       data.isFinish = true
       data.ok = response.ok
       data.status = response.status
       data.resBody = response.body
+      data.resHeaders = response.headers
       this._emit()
     }).catch((err) => {
-      console.log('fail', err)
+      // console.log('fail', err)
       data.isFinish = true
       data.error = err.toString()
       this._emit()
@@ -159,17 +164,10 @@ class FetchLog extends Component {
     const showList = []
     keys.forEach((key) => {
       if (typeof data[key] === 'string' && data[key]) {
-        if (data[key].length >= 10000) {
-          showList.push({
-            key: key,
-            value: 'Value Too Large'
-          })
-        } else {
-          showList.push({
-            key: key,
-            value: data[key]
-          })
-        }
+        showList.push({
+          key: key,
+          value: data[key]
+        })
       }
     })
     return showList
@@ -180,6 +178,17 @@ class FetchLog extends Component {
     } else {
       return status
     }
+  }
+  _renderItemDetail (item) {
+    return (
+      <View style={{
+        flexDirection: 'row',
+        padding: 5
+      }} key={item.key}>
+        <Text style={{flex: 3, fontWeight: 'bold'}}>{item.key}</Text>
+        <Text style={{flex: 10, wordBreak: 'break-all'}}>{item.value}</Text>
+      </View>
+    )
   }
   render () {
     const {
@@ -201,44 +210,13 @@ class FetchLog extends Component {
         </TouchableOpacity>
         {this.state.isShow
           ? <View>
-            {this._getShowList(data).map((item) => {
-              return (
-                <View style={{
-                  flexDirection: 'row',
-                  padding: 5
-                }} key={item.key}>
-                  <Text style={{flex: 3, fontWeight: 'bold'}}>{item.key}</Text>
-                  <Text style={{flex: 10}}>{item.value}</Text>
-                </View>
-              )
-            })}
+            {this._getShowList(data).map(this._renderItemDetail)}
           </View>
           : null}
       </View>
     )
   }
 }
-
-// const proxyFetch = new ProxyFetch(window)
-// proxyFetch.onUpdate((fetchMap) => {
-//   const showList = []
-//   fetchMap.forEach((data) => {
-//     showList.push({
-//       isFinish: data.isFinish,
-//       rid: data.rid,
-//       url: data.url,
-//       method: data.method,
-//       status: data.status,
-//       ok: data.ok,
-//       reqBody: data.reqBody,
-//       resBody: data.resBody,
-//       error: data.error
-//     })
-//   })
-//   console.log(JSON.stringify(showList, null, 2))
-// })
-//
-// fetch('https://developer.mozilla.org/zh-CN/docs/Web/API/Headers')
 
 export {
   FetchLog,
