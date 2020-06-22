@@ -12,7 +12,7 @@ _logs/
 index-v5/
 ios/build/
 anonymous-cli-metrics.json
-images
+./images
 react-native-web-demo
 
 

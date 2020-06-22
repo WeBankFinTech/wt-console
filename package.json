@@ -1,6 +1,6 @@
 {
   "name": "@webank/wt-console",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "A lightweight, extendable debug tool for React Native",
   "main": "library/index.js",
   "keywords": [
