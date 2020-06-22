@@ -24,7 +24,7 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 
 ## 📱 截图
 
-![](./images/screenshot.png)
+![](./images/screenshot1.png)
 
 ![](./images/screenshot2.png)
 
