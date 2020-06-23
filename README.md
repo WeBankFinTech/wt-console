@@ -17,10 +17,9 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 
 ## 🌱 特性
 
-1. 通过简单的接入即可在App内查看日志，提供优美的日志格式展示。
-2. 支持配置`ignoreRedBox`、`ignoreYellowBox`，用于屏蔽React Native上的红屏和警告
-3. 支持展示Network信息（目前支持fetch api的展示）
-4. 结合 [wt-console-server](https://gitee.com/UnPourTous/wt-console-server) 可以很方便的实现日志上传功能。
+1. 添加一行代码即可在App内查看日志。
+2. 支持展示Network信息（目前支持fetch api的展示）。
+3. 收拢警告和错误提示，跟RN内烦人的底部黄色警告条说再见。
 
 ## 📱 截图
 
@@ -28,22 +27,43 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 
 ![](./images/screenshot2.png)
 
-## 📗 基本用法
+## 📗 用法说明
 
+正式使用之前可以先使用snack版本体验，在线示例： [https://snack.expo.io/@erichua23/live-demo](https://snack.expo.io/@erichua23/live-demo)
+
+### 基础用法
 将`TianYan`嵌入到App最外层View中：
 
 ``` jsx
+import TianYan from '@webank/wt-console'
+
 export default class SimpleApp extends Component {
   render () {
     return (
       <View style={styles.container}>
         {/* other view */}
+        
+        {/* 添加下面一行代码即完成接入 */}
         <TianYan />
+        
       </View>
     )
   }
 }
 ```
+
+### 进阶用法
+这部分主要介绍两个属性：`ignoreRedBox`和`ignoreYellowBox`，RN对警告的处理比较暴力，直接使用浮窗在底部拦截操作，遇到警告比较多的时候非常烦人。官方提供的了ignore的方式，但是用官方的ignore，又担心某些需要关心的警告被忽略。
+wt-console采用了折中的策略，将黄色警告条去除后都收拢到wt-console的图标上展示，出现warning的时候开发者可以自有选择当前是否需要继续查看warning的详细信息。如下代码将错误和警告都收拢到wt-console统一管理。
+``` jsx
+<TianYan
+  options={{
+    ignoreRedBox: true,
+    ignoreYellowBox: true
+  }}
+/>
+```
+
 
 ## ❤️ 我们的其他项目
 
