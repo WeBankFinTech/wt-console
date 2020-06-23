@@ -6,7 +6,7 @@
 
 注：从[WeTrident项目](https://gitee.com/WeBank/WeTrident)提炼而来。
 
-## 安装
+## 📥 安装
 
 - `npm i @webank/wt-console --save`
 - `yarn add @webank/wt-console`
@@ -52,7 +52,7 @@ export default class SimpleApp extends Component {
 - [React Native Popup Stub](https://github.com/UnPourTous/react-native-popup-stub): A smart popup container.
 - [WT Console Server](https://github.com/UnPourTous/wt-console-server): An open source log manager backend.
 
-## 类似项目
+## 🤝 类似项目
 
 - [web-console](https://github.com/whinc/web-console)：H5-based mobile web debugging tool similar to chrome devtools.
 - [vConsole](https://github.com/Tencent/vConsole)：A lightweight, extendable front-end developer tool for mobile web page.
