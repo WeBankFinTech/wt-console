@@ -8,7 +8,7 @@
 
 ## 安装
 
-- `npm i @webank/wt-console`
+- `npm i @webank/wt-console --save`
 - `yarn add @webank/wt-console`
 
 ## 💡 背景
