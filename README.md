@@ -29,7 +29,7 @@ App开发过程中，经常会遇到一个场景就是，测试说我遇到一�
 
 ## 📗 用法说明
 
-正式使用之前可以先使用snack版本体验，在线示例： [https://snack.expo.io/@erichua23/live-demo](https://snack.expo.io/@erichua23/live-demo)
+正式使用之前可以先使用snack版本体验，在线示例： [https://snack.expo.io/@erichua23/wt-console-demo](https://snack.expo.io/@erichua23/wt-console-demo)
 
 ### 基础用法
 将`TianYan`嵌入到App最外层View中：
