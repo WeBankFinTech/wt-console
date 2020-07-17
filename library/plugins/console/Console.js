@@ -14,7 +14,7 @@ import { Log, Group, realOnePixel } from './utils/DumpObject'
 import {ProxyFetch, FetchLog} from './utils/ProxyFetch'
 import Tab from '../../components/Tab'
 
-const TAB_LIST = ['All', 'Warn', 'Error', 'Network']
+const TAB_LIST = ['All', 'Warn', 'Error', 'Req', 'Rereq']
 
 export default class Console extends Plugin {
   static isProxy = false
@@ -79,29 +79,37 @@ export default class Console extends Plugin {
 
     // proxy fetch
     Console._proxyFetch = new ProxyFetch(window)
-    Console._proxyFetch.onUpdate((fetchMap) => {
-      Console._fetchList = []
-      fetchMap.forEach((data) => {
-        Console._fetchList.push(data)
-      })
+    Console._proxyFetch.onUpdate((fetchList) => {
+      Console._fetchList = fetchList
       if (Console.currentInstance && !Console.currentInstance._isRender) {
         Console.currentInstance.setState({
           fetchList: Console._fetchList
         })
       }
     })
+    // 请求重发更新
+    Console._proxyFetch.onReUpdate((fetchList) => {
+      Console._reFetchList = fetchList
+      if (Console.currentInstance && !Console.currentInstance._isRender) {
+        Console.currentInstance.setState({
+          reFetchList: Console._reFetchList
+        })
+      }
+    })
   }
-
   static _getFetchList () {
     if (!Console._proxyFetch) {
       return []
     }
-    const fetchMap = Console._proxyFetch.getDataMap()
-    Console._fetchList = []
-    fetchMap.forEach((data) => {
-      Console._fetchList.push(data)
-    })
+    Console._fetchList = Console._proxyFetch.getFetchList()
     return Console._fetchList
+  }
+  static _getReFetchList () {
+    if (!Console._proxyFetch) {
+      return []
+    }
+    Console._reFetchList = Console._proxyFetch.getReFetchList()
+    return Console._reFetchList
   }
 
   static _tmpConsoleGroup = null
@@ -171,7 +179,8 @@ export default class Console extends Plugin {
       logList: Console.cachedLogList,
       showLoading: false,
       showResult: false,
-      fetchList: Console._getFetchList()
+      fetchList: Console._getFetchList(),
+      reFetchList: Console._getReFetchList()
     }
     this._isRender = false
     this._refs = {}
@@ -222,6 +231,7 @@ export default class Console extends Plugin {
       title: logType + `(${consoleList.length})`,
       renderContent: () => (
         <FlatList
+          key={logType}
           data={consoleList}
           renderItem={({item}) => (
             item.logType === 'groupCollapsed'
@@ -237,16 +247,17 @@ export default class Console extends Plugin {
     }
   }
 
-  _renderNetwork (logType) {
+  _renderNetwork (logType, fetchList) {
     return {
-      title: logType,
+      title: logType + `(${fetchList ? fetchList.length : 0})`,
       renderContent: () => (
         <FlatList
-          data={this.state.fetchList}
+          key={logType}
+          data={fetchList}
           renderItem={({item}) => (
             <FetchLog data={item} />
           )}
-          keyExtractor={(item) => String(item.rid)}
+          keyExtractor={(item) => item.rid}
           ItemSeparatorComponent={this._renderSeparator}
           ref={this._onRef(logType)}
           onEndReachedThreshold={0.5}
@@ -256,9 +267,12 @@ export default class Console extends Plugin {
   }
 
   render () {
+    // Console.rawConsole.log('xxxxxx', 'Console.render')
     this._isRender = true
     const {
-      logList
+      logList,
+      fetchList,
+      reFetchList
     } = this.state
     const {logServerUrl = ''} = Console.options || {}
     return (
@@ -272,8 +286,10 @@ export default class Console extends Plugin {
           onChangePage={this._onChange}
           initPage={0}
           pages={TAB_LIST.map((item, index) => {
-            if (item === 'Network') {
-              return this._renderNetwork(item)
+            if (item === 'Req') {
+              return this._renderNetwork(item, fetchList)
+            } else if (item === 'Rereq') {
+              return this._renderNetwork(item, reFetchList)
             }
             return this._renderLog(item, logList)
           })}

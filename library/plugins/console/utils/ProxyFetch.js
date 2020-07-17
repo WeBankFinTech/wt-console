@@ -5,39 +5,62 @@ import {
 } from 'react-native'
 import StyleValues from './StyleValues'
 import * as URL from 'url'
-import Text from './Text'
+import Text from '../components/Text'
+import Button from '../components/Button'
 
 const getRid = (() => {
   let id = -1
-  return () => {
-    id += 1
-    return id
+  let reId = -1
+  return (isResend) => {
+    if (isResend) {
+      reId += 1
+      return `RR${reId}`
+    } else {
+      id += 1
+      return `R${id}`
+    }
   }
 })()
 
 class ProxyFetch {
   constructor (window) {
-    this._dataMap = new Map()
+    this._fetchList = []
+    this._reFetchList = []
     this._callback = []
-    const rawFetch = window.fetch
+    this._reCallback = []
+    this.rawFetch = window.fetch
     window.fetch = (input, init) => {
-      const p = rawFetch(input, init)
+      const p = this.rawFetch(input, init)
       this._listen(input, init, p)
       return p
     }
   }
 
-  getDataMap () {
-    return this._dataMap
+  getFetchList () {
+    return this._fetchList
+  }
+
+  getReFetchList() {
+    return this._reFetchList
   }
 
   onUpdate (cb) {
     this._callback.push(cb)
   }
 
-  _emit () {
-    for (let cb of this._callback) {
-      cb(this._dataMap)
+  onReUpdate (cb) {
+    this._reCallback.push(cb)
+  }
+
+  _emit (isResend) {
+    if (isResend) {
+      for (let cb of this._reCallback) {
+        cb(Array.from(this._reFetchList))
+      }
+    } else {
+      for (let cb of this._callback) {
+        cb(this._fetchList)
+      }
     }
   }
 
@@ -76,9 +99,15 @@ class ProxyFetch {
     return result.map((item) => `${item.key}: ${item.value}`).join('\n')
   }
 
-  _listen (input, init, p) {
-    const rid = getRid()
-    const req = (input instanceof Request) ? input : new Request(input, init)
+  rereq (req) {
+    const p = this.rawFetch(req)
+    this._listen(req, undefined, p, true)
+    return p
+  }
+
+  _listen (input, init, p, isResend) {
+    const rid = getRid(isResend)
+    const req = new Request(input, init)
 
     let reqBody
     if (init && typeof init.body === 'string') {
@@ -87,10 +116,13 @@ class ProxyFetch {
     const urlInfo = URL.parse(req.url)
     const data = {
       rid: rid,
+      isResend: isResend,
       hostname: urlInfo.hostname,
       path: urlInfo.pathname + (urlInfo.search || ''),
       url: req.url,
       method: req.method,
+      req: req,
+      resend: () => this.rereq(req.clone()),
       reqHeaders: this._parseHeaders(req.headers),
       reqBody: reqBody,
 
@@ -100,9 +132,13 @@ class ProxyFetch {
       error: undefined,
       isFinish: false
     }
-    this._dataMap.set(rid, data)
+    if (isResend) {
+      this._reFetchList.push(data)
+    } else {
+      this._fetchList.push(data)
+    }
 
-    this._emit()
+    this._emit(isResend)
     p.then((res) => {
       return this._resBody2string(res)
         .then((bodyStr) => {
@@ -120,12 +156,12 @@ class ProxyFetch {
       data.status = response.status
       data.resBody = response.body
       data.resHeaders = response.headers
-      this._emit()
+      this._emit(isResend)
     }).catch((err) => {
       // console.log('fail', err)
       data.isFinish = true
       data.error = err.toString()
-      this._emit()
+      this._emit(isResend)
     })
   }
 }
@@ -134,7 +170,8 @@ class FetchLog extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      isShow: false
+      isShow: false,
+      disabled: false
     }
   }
   _onToggle = () => {
@@ -182,13 +219,26 @@ class FetchLog extends Component {
   _renderItemDetail (item) {
     return (
       <View style={{
-        flexDirection: 'row',
-        padding: 5
+        flexDirection: 'row'
       }} key={item.key}>
         <Text style={{flex: 3, fontWeight: 'bold'}}>{item.key}</Text>
-        <Text style={{flex: 10, wordBreak: 'break-all'}}>{item.value}</Text>
+        <Text style={{flex: 10}}>{item.value}</Text>
       </View>
     )
+  }
+  onPressRequest = () => {
+    const {
+      data
+    } = this.props
+    this.setState({
+      disabled: true
+    })
+    data.resend()
+      .finally(() => {
+        this.setState({
+          disabled: false
+        })
+      })
   }
   render () {
     const {
@@ -204,12 +254,17 @@ class FetchLog extends Component {
             alignItems: 'center',
             padding: 5
           }}>
+            <Text style={{color: color, fontWeight: 'bold', marginRight: 5}}>{data.rid}</Text>
             <Text numberOfLines={1} style={{flex: 1, color: color}}>{data.path}</Text>
             <Text style={{marginLeft: 5, color: color, fontWeight: 'bold'}}>{this._getStatusDesc(data.status)}</Text>
           </View>
         </TouchableOpacity>
         {this.state.isShow
-          ? <View>
+          ? <View style={{
+            padding: 5,
+            alignItems: 'flex-start'
+          }}>
+            <Button disabled={this.state.disabled} text={'请求重发'} onPress={this.onPressRequest} />
             {this._getShowList(data).map(this._renderItemDetail)}
           </View>
           : null}
