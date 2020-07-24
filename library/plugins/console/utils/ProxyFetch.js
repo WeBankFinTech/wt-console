@@ -7,6 +7,7 @@ import StyleValues from './StyleValues'
 import * as URL from 'url'
 import Text from '../components/Text'
 import Button from '../components/Button'
+import { realOnePixel } from './DumpObject'
 
 const getRid = (() => {
   let id = -1
@@ -173,7 +174,8 @@ class FetchLog extends Component {
     super(props)
     this.state = {
       isShow: false,
-      disabled: false
+      disabled: false,
+      toggleMap: {}
     }
   }
   _onToggle = () => {
@@ -221,13 +223,30 @@ class FetchLog extends Component {
       return status
     }
   }
-  _renderItemDetail (item) {
+  _onPressItem (key) {
+    this.setState({
+      toggleMap: {
+        ...this.state.toggleMap,
+        [key]: !this.state.toggleMap[key]
+      }
+    })
+  }
+  _renderItemDetail = (item) => {
     return (
       <View style={{
+        paddingVertical: 5,
+        borderTopWidth: realOnePixel,
+        borderColor: 'gray',
         flexDirection: 'row'
       }} key={item.key}>
         <Text style={{flex: 3, fontWeight: 'bold'}}>{item.key}</Text>
-        <Text style={{flex: 10}}>{item.value}</Text>
+        <TouchableOpacity
+          onPress={() => this._onPressItem(item.key)}
+          activeOpacity={0.5}
+          style={{flex: 10, marginLeft: 5}}
+        >
+          <Text numberOfLines={this.state.toggleMap[item.key] ? undefined : 1}>{this.state.toggleMap[item.key] ? item.value : item.value.replace(/\n/g, ' ')}</Text>
+        </TouchableOpacity>
       </View>
     )
   }
@@ -269,7 +288,7 @@ class FetchLog extends Component {
             padding: 5,
             alignItems: 'flex-start'
           }}>
-            <Button disabled={this.state.disabled} text={'请求重发'} onPress={this.onPressRequest} />
+            <Button style={{marginBottom: 5}} disabled={this.state.disabled} text={'请求重发'} onPress={this.onPressRequest} />
             {this._getShowList(data).map(this._renderItemDetail)}
           </View>
           : null}
