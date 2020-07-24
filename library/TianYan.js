@@ -14,6 +14,7 @@ import PropTypes from 'prop-types'
 
 import Dashboard from './Dashboard'
 import Console from './plugins/console/Console'
+import Network from './plugins/network/Network'
 
 const { width, height } = Dimensions.get("window");
 const ICON_SIZE = 50
@@ -43,6 +44,13 @@ export default class TianYan extends Component {
         }
       },
       <Console />)
+    Dashboard.register(
+      Network,
+      {
+        tabLabel: 'Network'
+      },
+      <Network />
+    )
     Dashboard.setup()
 
     this.state = {
