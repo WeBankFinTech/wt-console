@@ -115,6 +115,7 @@ class ProxyFetch {
     }
     const urlInfo = URL.parse(req.url)
     const data = {
+      startTimestamp: Date.now(),
       rid: rid,
       isResend: isResend,
       hostname: urlInfo.hostname,
@@ -140,6 +141,7 @@ class ProxyFetch {
 
     this._emit(isResend)
     p.then((res) => {
+      data.endTimestamp = Date.now()
       return this._resBody2string(res)
         .then((bodyStr) => {
           return {
@@ -198,7 +200,10 @@ class FetchLog extends Component {
   }
   _getShowList (data) {
     const keys = ['method', 'url', 'reqHeaders', 'reqBody', 'resHeaders', 'resBody', 'error']
-    const showList = []
+    const showList = [{
+      key: 'time',
+      value: `${(new Date(data.startTimestamp)).toLocaleString('zh-CN')}（${data.endTimestamp - data.startTimestamp}ms）`
+    }]
     keys.forEach((key) => {
       if (typeof data[key] === 'string' && data[key]) {
         showList.push({
