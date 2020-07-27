@@ -3,12 +3,14 @@ import { FetchLog, ProxyFetch } from '../console/utils/ProxyFetch'
 import { FlatList, View } from 'react-native'
 import React from 'react'
 import Tab from '../../components/Tab'
+import ButtonGroup from '../components/ButtonGroup'
 import { realOnePixel } from '../console/utils/DumpObject'
 
 const TABS = {
   Request: 'Request',
   ReRequest: 'ReRequest'
 }
+const TAB_LIST = Object.values(TABS)
 
 export default class Network extends Plugin {
   static setup (options) {
@@ -20,36 +22,31 @@ export default class Network extends Plugin {
     // proxy fetch
     Network._proxyFetch = new ProxyFetch(window)
     Network._proxyFetch.onUpdate((fetchList) => {
-      Network._fetchList = fetchList
       if (Network.currentInstance && !Network.currentInstance._isRender) {
-        Network.currentInstance.setState({
-          fetchList: Network._fetchList
-        })
+        Network.currentInstance._updateList(TABS.Request, fetchList)
       }
     })
     // 请求重发更新
     Network._proxyFetch.onReUpdate((fetchList) => {
-      Network._reFetchList = fetchList
       if (Network.currentInstance && !Network.currentInstance._isRender) {
-        Network.currentInstance.setState({
-          reFetchList: Network._reFetchList
-        })
+        Network.currentInstance._updateList(TABS.ReRequest, fetchList)
       }
     })
   }
-  static _getFetchList () {
+  static _getFetchList (logType) {
     if (!Network._proxyFetch) {
       return []
     }
-    Network._fetchList = Network._proxyFetch.getFetchList()
-    return Network._fetchList
+    return logType === TABS.Request ? Network._proxyFetch.getFetchList() : Network._proxyFetch.getReFetchList()
   }
-  static _getReFetchList () {
-    if (!Network._proxyFetch) {
-      return []
-    }
-    Network._reFetchList = Network._proxyFetch.getReFetchList()
-    return Network._reFetchList
+
+  _updateList (logType, list) {
+    this.setState({
+      listMap: {
+        ...this.state.listMap,
+        [logType]: list
+      }
+    })
   }
 
   _renderSeparator = () => {
@@ -60,12 +57,35 @@ export default class Network extends Plugin {
   constructor (props) {
     super(props)
     this.state = {
-      fetchList: Network._getFetchList(),
-      reFetchList: Network._getReFetchList()
+      listMap: {
+        [TAB_LIST[0]]: Network._getFetchList(TAB_LIST[0]),
+        [TAB_LIST[1]]: Network._getFetchList(TAB_LIST[1])
+      }
     }
     Network.currentInstance = this
+    this.buttonList = [{
+      name: 'Bottom',
+      onPress: this._gotoBottom
+    }, {
+      name: 'Clean',
+      onPress: () => {
+        if (this.tabName === TABS.Request) {
+          Network._proxyFetch.clearFetchList()
+        } else {
+          Network._proxyFetch.clearReFetchList()
+        }
+        this.setState({
+          listMap: {
+            ...this.state.listMap,
+            [this.tabName]: []
+          }
+        })
+      }
+    }]
+    this._refs = {}
   }
-  _renderNetwork (logType, fetchList) {
+  _renderNetwork (logType) {
+    const fetchList = this.state.listMap[logType]
     return {
       title: logType + `(${fetchList ? fetchList.length : 0})`,
       renderContent: () => (
@@ -78,16 +98,23 @@ export default class Network extends Plugin {
           keyExtractor={(item) => item.rid}
           ItemSeparatorComponent={this._renderSeparator}
           onEndReachedThreshold={0.5}
+          ref={this._onRef(logType)}
         />
       )
     }
   }
+  _onChange = (index) => {
+    this.tabName = TAB_LIST[index]
+  }
+  _onRef = (method) => {
+    return (ref) => {
+      this._refs[method] = ref
+    }
+  }
+  _gotoBottom = () => {
+    this._refs[this.tabName] && this._refs[this.tabName].scrollToEnd()
+  }
   render () {
-    const {
-      fetchList,
-      reFetchList
-    } = this.state
-    const TAB_LIST = Object.values(TABS)
     return (
       <View
         style={{
@@ -98,13 +125,10 @@ export default class Network extends Plugin {
           style={{flex: 1}}
           onChangePage={this._onChange}
           initPage={0}
-          pages={TAB_LIST.map((item, index) => {
-            if (item === TABS.Request) {
-              return this._renderNetwork(item, fetchList)
-            } else if (item === TABS.ReRequest) {
-              return this._renderNetwork(item, reFetchList)
-            }
-          })}
+          pages={TAB_LIST.map((item) => this._renderNetwork(item))}
+        />
+        <ButtonGroup
+          list={this.buttonList}
         />
       </View>
     )

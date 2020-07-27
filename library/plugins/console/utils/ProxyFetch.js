@@ -46,6 +46,13 @@ class ProxyFetch {
     return this._reFetchList
   }
 
+  clearFetchList () {
+    this._fetchList = []
+  }
+  clearReFetchList () {
+    this._reFetchList = []
+  }
+
   onUpdate (cb) {
     this._callback.push(cb)
   }
