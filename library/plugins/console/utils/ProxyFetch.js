@@ -108,13 +108,15 @@ class ProxyFetch {
     return p
   }
 
-  _listen (input, init, p, isResend) {
+  async _listen (input, init, p, isResend) {
     const rid = getRid(isResend)
     const req = new Request(input, init)
 
     let reqBody
-    if (init && typeof init.body === 'string') {
-      reqBody = init.body
+    try {
+      reqBody = await req.clone().text()
+    } catch (err) {
+      reqBody = String(err)
     }
     const urlInfo = URL.parse(req.url)
     const data = {
