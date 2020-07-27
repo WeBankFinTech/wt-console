@@ -197,8 +197,8 @@ export default class Console extends Plugin {
           data={consoleList}
           renderItem={({item}) => (
             item.logType === 'groupCollapsed'
-              ? <Group tag={item.msg} value={item.logList} />
-              : <Log value={item.msg} logType={item.logType} />
+              ? <Group tag={item.msg} value={item.logList} timestamp={item.timestamp} />
+              : <Log value={item.msg} logType={item.logType} timestamp={item.timestamp} />
           )}
           keyExtractor={this._getKey}
           ItemSeparatorComponent={this._renderSeparator}

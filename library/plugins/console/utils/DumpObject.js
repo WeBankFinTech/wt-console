@@ -29,8 +29,11 @@ const logsToString = (tags) => {
   }
   return strList
 }
-const logToString = (tags) => {
-  let eles = []
+const logToString = (tags, timestamp) => {
+  const t = new Date(timestamp)
+  let eles = [
+    <Text style={{color: 'gray'}} key={timestamp}>{t.getHours()}:{t.getMinutes()}:{t.getSeconds()}.{t.getMilliseconds()} </Text>
+  ]
   // Console.rawConsole.log('tags', tags, tags.length)
   for (let i = 0; i < tags.length; i += 1) {
     let tag = toString(tags[i])
@@ -283,7 +286,8 @@ class JSValue extends Component {
 class Log extends Component {
   static propTypes = {
     logType: PropTypes.string,
-    value: PropTypes.any
+    value: PropTypes.any,
+    timestamp: PropTypes.number.isRequired
   }
   constructor (props) {
     super(props)
@@ -311,12 +315,13 @@ class Log extends Component {
   }
   render () {
     const {
-      value
+      value,
+      timestamp
     } = this.props
     const {
       show
     } = this.state
-    const str = logToString(value)
+    const str = logToString(value, timestamp)
     const color = this._getColor()
     const bgColor = color ? `${color}55` : undefined
     return (
@@ -357,12 +362,13 @@ ${list.map((item) => {
   render () {
     const {
       value,
-      tag
+      tag,
+      timestamp
     } = this.props
     const {
       show
     } = this.state
-    const str = logToString(tag)
+    const str = logToString(tag, timestamp)
     return (
       <View>
         <Arrow isGroup show={show} str={str} log={this._toString(tag, value)} onPress={this._onToggle} />
@@ -373,7 +379,8 @@ ${list.map((item) => {
                 key={index}
                 style={{marginTop: 5, borderTopWidth: realOnePixel, borderTopColor: '#AAAAAA'}}
                 value={item.msg}
-                logType={item.logType} />
+                logType={item.logType}
+                timestamp={item.timestamp} />
             ))}</Card>
           : null}
       </View>
