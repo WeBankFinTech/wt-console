@@ -10,7 +10,7 @@ import React from 'react'
 import Plugin from '../Plugin'
 import Loading from './components/Loading'
 import ResultBoard from './components/ResultBoard'
-import { Log, Group, realOnePixel } from './utils/DumpObject'
+import { Log, Group, realOnePixel } from '../utils/DumpObject'
 import Tab from '../../components/Tab'
 
 const TAB_LIST = ['All', 'Warn', 'Error']

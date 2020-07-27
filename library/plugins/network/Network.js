@@ -1,10 +1,11 @@
 import Plugin from '../Plugin'
-import { FetchLog, ProxyFetch } from '../console/utils/ProxyFetch'
-import { FlatList, View } from 'react-native'
+import { FetchLog, ProxyFetch } from '../utils/ProxyFetch'
+import { FlatList, View, TextInput } from 'react-native'
 import React from 'react'
 import Tab from '../../components/Tab'
 import ButtonGroup from '../components/ButtonGroup'
-import { realOnePixel } from '../console/utils/DumpObject'
+import { realOnePixel } from '../utils/DumpObject'
+import Button from '../components/Button'
 
 const TABS = {
   Request: 'Request',
@@ -39,27 +40,16 @@ export default class Network extends Plugin {
     }
     return logType === TABS.Request ? Network._proxyFetch.getFetchList() : Network._proxyFetch.getReFetchList()
   }
-
-  _updateList (logType, list) {
-    this.setState({
-      listMap: {
-        ...this.state.listMap,
-        [logType]: list
-      }
-    })
-  }
-
-  _renderSeparator = () => {
-    return (
-      <View style={{height: realOnePixel, backgroundColor: '#AAAAAA'}} />
-    )
-  }
   constructor (props) {
     super(props)
     this.state = {
       listMap: {
         [TAB_LIST[0]]: Network._getFetchList(TAB_LIST[0]),
         [TAB_LIST[1]]: Network._getFetchList(TAB_LIST[1])
+      },
+      searchTextMap: {
+        [TAB_LIST[0]]: '',
+        [TAB_LIST[1]]: ''
       }
     }
     Network.currentInstance = this
@@ -83,6 +73,64 @@ export default class Network extends Plugin {
       }
     }]
     this._refs = {}
+    this.tabName = TABS.Request
+  }
+
+  _updateList (logType, list) {
+    this.setState({
+      listMap: {
+        ...this.state.listMap,
+        [logType]: list
+      }
+    })
+  }
+
+  _updateListBySearchText = (searchText) => {
+    searchText = searchText.toLowerCase().trim()
+    const list = Network._getFetchList(this.tabName)
+    this.setState({
+      searchTextMap: {
+        ...this.state.searchTextMap,
+        [this.tabName]: searchText
+      }
+    })
+    this._updateList(this.tabName, list.filter((data) => !searchText || data.url.indexOf(searchText) > -1))
+  }
+
+  _renderSeparator = () => {
+    return (
+      <View style={{height: realOnePixel, backgroundColor: '#AAAAAA'}} />
+    )
+  }
+  _renderHeader = () => {
+    return (
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        margin: 5
+      }}>
+        <TextInput
+          value={this.state.searchTextMap[this.tabName]}
+          style={{
+            paddingHorizontal: 5,
+            height: 40,
+            fontSize: 16,
+            borderWidth: realOnePixel,
+            borderColor: 'gray',
+            borderRadius: 5,
+            flex: 1
+          }}
+          keyboardType={'ascii-capable'}
+          autoCorrect={false}
+          iosreturnKeyType={'search'}
+          placeholder={'input url segment to search, case insensitive'}
+          onChangeText={this._updateListBySearchText}
+        />
+        <Button style={{marginLeft: 5}} text={'Clean'} onPress={() => {
+          this._updateListBySearchText('')
+        }} />
+      </View>
+    )
   }
   _renderNetwork (logType) {
     const fetchList = this.state.listMap[logType]
@@ -95,6 +143,7 @@ export default class Network extends Plugin {
           renderItem={({item}) => (
             <FetchLog data={item} />
           )}
+          ListHeaderComponent={this._renderHeader}
           keyExtractor={(item) => item.rid}
           ItemSeparatorComponent={this._renderSeparator}
           onEndReachedThreshold={0.5}
