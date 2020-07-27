@@ -31,8 +31,9 @@ class ProxyFetch {
     this._reCallback = []
     this.rawFetch = window.fetch
     window.fetch = (input, init) => {
+      const newInput = input instanceof Request ? input.clone() : input
       const p = this.rawFetch(input, init)
-      this._listen(input, init, p)
+      this._listen(newInput, init, p)
       return p
     }
   }
@@ -101,8 +102,9 @@ class ProxyFetch {
   }
 
   rereq (req) {
+    const newReq = req.clone()
     const p = this.rawFetch(req)
-    this._listen(req, undefined, p, true)
+    this._listen(newReq, undefined, p, true)
     return p
   }
 
