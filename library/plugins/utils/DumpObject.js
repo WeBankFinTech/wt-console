@@ -404,5 +404,6 @@ const styles = StyleSheet.create({
 export {
   Log,
   Group,
-  realOnePixel
+  realOnePixel,
+  logsToString
 }

@@ -6,6 +6,7 @@ import Tab from '../../components/Tab'
 import ButtonGroup from '../components/ButtonGroup'
 import { realOnePixel } from '../utils/DumpObject'
 import Button from '../components/Button'
+import Search from '../components/Search'
 
 const TABS = {
   Request: 'Request',
@@ -85,8 +86,7 @@ export default class Network extends Plugin {
     })
   }
 
-  _updateListBySearchText = (searchText) => {
-    searchText = searchText.toLowerCase().trim()
+  _updateListBySearchText = (searchText = '') => {
     const list = Network._getFetchList(this.tabName)
     this.setState({
       searchTextMap: {
@@ -94,7 +94,8 @@ export default class Network extends Plugin {
         [this.tabName]: searchText
       }
     })
-    this._updateList(this.tabName, list.filter((data) => !searchText || data.url.indexOf(searchText) > -1))
+    const plainSearchText = searchText.toLowerCase().trim()
+    this._updateList(this.tabName, list.filter((data) => !plainSearchText || data.url.toLowerCase().indexOf(plainSearchText) > -1))
   }
 
   _renderSeparator = () => {
@@ -104,32 +105,11 @@ export default class Network extends Plugin {
   }
   _renderHeader = () => {
     return (
-      <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        margin: 5
-      }}>
-        <TextInput
-          value={this.state.searchTextMap[this.tabName]}
-          style={{
-            paddingHorizontal: 5,
-            height: 40,
-            fontSize: 16,
-            borderWidth: realOnePixel,
-            borderColor: 'gray',
-            borderRadius: 5,
-            flex: 1
-          }}
-          keyboardType={'ascii-capable'}
-          autoCorrect={false}
-          iosreturnKeyType={'search'}
-          placeholder={'input url segment to search, case insensitive'}
-          onChangeText={this._updateListBySearchText}
-        />
-        <Button style={{marginLeft: 5}} text={'Clean'} onPress={() => {
-          this._updateListBySearchText('')
-        }} />
-      </View>
+      <Search
+        onChangeText={this._updateListBySearchText}
+        onCleanText={this._updateListBySearchText}
+        value={this.state.searchTextMap[this.tabName]}
+      />
     )
   }
   _renderNetwork (logType) {

@@ -10,8 +10,9 @@ import React from 'react'
 import Plugin from '../Plugin'
 import Loading from './components/Loading'
 import ResultBoard from './components/ResultBoard'
-import { Log, Group, realOnePixel } from '../utils/DumpObject'
+import { Log, Group, realOnePixel, logsToString } from '../utils/DumpObject'
 import Tab from '../../components/Tab'
+import Search from '../components/Search'
 
 const TAB_LIST = ['All', 'Warn', 'Error']
 
@@ -134,7 +135,12 @@ export default class Console extends Plugin {
     this.state = {
       logList: [],
       showLoading: false,
-      showResult: false
+      showResult: false,
+      searchTextMap: {
+        [TAB_LIST[0]]: '',
+        [TAB_LIST[1]]: '',
+        [TAB_LIST[2]]: ''
+      }
     }
     this._refs = {}
     this.currentMethod = TAB_LIST[0]
@@ -152,9 +158,7 @@ export default class Console extends Plugin {
   }
 
   _updateLogList () {
-    this.setState({
-      logList: Console.cachedLogList
-    })
+    this._updateListBySearchText(this.state.searchTextMap[this.currentMethod])
   }
 
   _renderSeparator = () => {
@@ -179,9 +183,38 @@ export default class Console extends Plugin {
   _getKey = (item, index) => {
     return String(index)
   }
-
+  _updateListBySearchText = (searchText = '') => {
+    const logType = this.currentMethod.toLowerCase()
+    const plainSearchText = searchText.toLowerCase().trim()
+    const consoleList = Console.cachedLogList.filter(logItem => {
+      const isSameType = logType === 'all' ||
+        logType === logItem.category ||
+        logType === logItem.logType
+      return isSameType &&
+        (
+          !plainSearchText ||
+          logsToString(logItem.msg).join('').toLowerCase().indexOf(plainSearchText) > -1
+        )
+    })
+    this.setState({
+      logList: consoleList,
+      searchTextMap: {
+        ...this.state.searchTextMap,
+        [this.currentMethod]: searchText
+      }
+    })
+  }
+  _renderHeader = () => {
+    return (
+      <Search
+        keyboardType={'default'}
+        onEndText={this._updateListBySearchText}
+        onCleanText={this._updateListBySearchText}
+        value={this.state.searchTextMap[this.tabName]} />
+    )
+  }
   _renderLog (logType, logList) {
-    let consoleList = logList.filter(logItem =>
+    const consoleList = logList.filter(logItem =>
       logType === 'All' ||
       logType.toLowerCase() === logItem.category ||
       logType.toLowerCase() === logItem.logType
@@ -192,6 +225,7 @@ export default class Console extends Plugin {
         <FlatList
           key={logType}
           data={consoleList}
+          ListHeaderComponent={this._renderHeader}
           renderItem={({item}) => (
             item.logType === 'groupCollapsed'
               ? <Group tag={item.msg} value={item.logList} timestamp={item.timestamp} />
