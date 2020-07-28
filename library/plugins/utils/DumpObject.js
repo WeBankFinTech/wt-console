@@ -1,12 +1,14 @@
 import React, {Component} from 'react'
 import {
-  Text,
   View,
-  TouchableOpacity, PixelRatio, Clipboard
+  TouchableOpacity,
+  PixelRatio,
+  Clipboard,
+  StyleSheet
 } from 'react-native'
 import PropTypes from 'prop-types'
 import {isColor, parseCSSStyle} from './isColor'
-// import Console from '../Console'
+import {MonospaceText as Text} from '../components/Text'
 
 const realOnePixel = 1 / PixelRatio.get()
 const logsToString = (tags) => {
@@ -32,7 +34,12 @@ const logsToString = (tags) => {
 const logToString = (tags, timestamp) => {
   const t = new Date(timestamp)
   let eles = [
-    <Text style={{color: 'gray', fontWeight: 'bold'}} key={timestamp}>{t.getHours()}:{t.getMinutes()}:{t.getSeconds()}.{t.getMilliseconds()} </Text>
+    <Text
+      key={timestamp}
+      style={[styles.text, {
+        color: 'gray',
+        fontWeight: 'normal'
+      }]}>{t.getHours()}:{t.getMinutes()}:{t.getSeconds()}.{String(t.getMilliseconds()).padStart(3, '0')}</Text>
   ]
   // Console.rawConsole.log('tags', tags, tags.length)
   for (let i = 0; i < tags.length; i += 1) {
@@ -40,7 +47,7 @@ const logToString = (tags, timestamp) => {
     let t = tag.split('%c')
     // Console.rawConsole.log('tag', t)
     if (t.length > 1) {
-      eles.push(<Text key={i}> {t[0]}</Text>)
+      eles.push(<Text style={styles.text} key={i}> {t[0]}</Text>)
       for (let j = 1; j < t.length; j += 1) {
         const style = parseCSSStyle(tags[i + j], ['color'])
         let color
@@ -49,18 +56,17 @@ const logToString = (tags, timestamp) => {
         }
         // Console.rawConsole.log('color', t2)
         eles.push(
-          <Text key={i + '_' + j} style={{color: color}}>{t[j]}</Text>
+          <Text key={i + '_' + j} style={[styles.text, {color: color}]}>{t[j]}</Text>
         )
       }
       i += t.length - 1
     } else {
-      eles.push(<Text key={i}> {t[0]}</Text>)
+      eles.push(<Text style={styles.text} key={i}> {t[0]}</Text>)
     }
   }
   return eles
 }
 
-const FONT_SIZE = 12
 const JSPrimaryTypes = {
   undefined: 'undefined',
   null: 'null',
@@ -141,7 +147,7 @@ class Copy extends Component {
           borderRadius: 5
         }}
       >
-        <Text style={{fontSize: FONT_SIZE, fontWeight: 'bold', color: 'crimson'}}>Copy</Text>
+        <Text style={[styles.text, {fontWeight: 'bold', color: 'crimson'}]}>Copy</Text>
       </TouchableOpacity>
     )
   }
@@ -162,9 +168,9 @@ class Arrow extends Component {
           style={{flex: 1}}
         >
           <View style={{flexDirection: 'row'}}>
-            <Text style={{fontSize: FONT_SIZE, marginRight: 5}}>{show ? '👇' : '👉️'}</Text>
+            <Text style={[styles.text, {marginRight: 5}]}>{show ? '👇' : '👉️'}</Text>
             <Text
-              style={[{flex: 1, color: this.props.color, fontSize: FONT_SIZE}, this.props.isGroup ? {fontWeight: 'bold'} : null]}
+              style={[styles.text, {flex: 1, color: this.props.color}, this.props.isGroup ? {fontWeight: 'bold'} : null]}
               numberOfLines={show && this.props.isGroup ? undefined : 1}>{str}</Text>
           </View>
         </TouchableOpacity>
@@ -209,7 +215,7 @@ class JSPrimary extends Component {
     } = this.props
     const pv = new PrimaryValue(value)
     return (
-      <Text style={[{fontSize: FONT_SIZE}, style]}>{pv.toString()}</Text>
+      <Text style={[styles.text, style]}>{pv.toString()}</Text>
     )
   }
 }
@@ -219,7 +225,7 @@ class Item extends Component {
       <View style={[{
         flexDirection: 'row'
       }, this.props.style]}>
-        {this.props.valueKey !== undefined ? <Text>{this.props.valueKey}: </Text> : null}
+        {this.props.valueKey !== undefined ? <Text style={styles.text}>{this.props.valueKey}: </Text> : null}
         <JSValue style={{flex: 1, marginLeft: 5}} value={this.props.value} />
       </View>
     )
@@ -274,11 +280,11 @@ class JSValue extends Component {
       return (
         <View style={[{margin: 5}, style]}>
           <Arrow show={show} str={str} log={value} onPress={this._onToggle} />
-          {show ? <Card><Text style={{fontSize: FONT_SIZE}}>{JSON.stringify(value, null, 2)}</Text></Card> : null}
+          {show ? <Card><Text style={styles.text}>{JSON.stringify(value, null, 2)}</Text></Card> : null}
         </View>
       )
     } else {
-      return <Text style={style}>unknow</Text>
+      return <Text style={[styles.text, style]}>unknow</Text>
     }
   }
 }
@@ -387,6 +393,13 @@ ${list.map((item) => {
     )
   }
 }
+
+const styles = StyleSheet.create({
+  text: {
+    fontSize: 12,
+    lineHeight: 18
+  }
+})
 
 export {
   Log,
