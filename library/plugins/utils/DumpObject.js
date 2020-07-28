@@ -32,7 +32,7 @@ const logsToString = (tags) => {
 const logToString = (tags, timestamp) => {
   const t = new Date(timestamp)
   let eles = [
-    <Text style={{color: 'gray'}} key={timestamp}>{t.getHours()}:{t.getMinutes()}:{t.getSeconds()}.{t.getMilliseconds()} </Text>
+    <Text style={{color: 'gray', fontWeight: 'bold'}} key={timestamp}>{t.getHours()}:{t.getMinutes()}:{t.getSeconds()}.{t.getMilliseconds()} </Text>
   ]
   // Console.rawConsole.log('tags', tags, tags.length)
   for (let i = 0; i < tags.length; i += 1) {
