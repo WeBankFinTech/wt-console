@@ -256,7 +256,7 @@ class FetchLog extends Component {
           activeOpacity={0.5}
           style={{flex: 10, marginLeft: 5}}
         >
-          <Text numberOfLines={this.state.toggleMap[item.key] ? undefined : 1}>{this.state.toggleMap[item.key] ? item.value : item.value.replace(/\n/g, ' ')}</Text>
+          <Text numberOfLines={this.state.toggleMap[item.key] ? undefined : 1}>{this.state.toggleMap[item.key] ? item.value : item.value.replace(/[\s\n]+/g, ' ')}</Text>
         </TouchableOpacity>
       </View>
     )
