@@ -126,38 +126,35 @@ export default class Console extends Plugin {
 
     ignoreRedBox && updateErrorCount && updateErrorCount(Console._errorLogCount)
     ignoreYellowBox && updateWarnCount && updateWarnCount(Console._warnLogCount)
-
-    /* 渲染错误日志就不打印了，否则会陷入死循环 */
-    if (Console.currentInstance && !Console.currentInstance._isRender) {
-      Console.currentInstance.setState({
-        logList: Console.cachedLogList
-      })
-    }
-
   }
 
   constructor (props) {
     super(props)
     Console.currentInstance = this
     this.state = {
-      logList: Console.cachedLogList,
+      logList: [],
       showLoading: false,
       showResult: false
     }
-    this._isRender = false
     this._refs = {}
     this.currentMethod = TAB_LIST[0]
   }
 
   componentDidMount () {
-    this._isRender = false
-  }
-  componentDidUpdate () {
-    this._isRender = false
+    this._updateLogList()
+    this._timer = setInterval(() => {
+      this._updateLogList()
+    }, 500)
   }
 
   componentWillUnmount () {
-    Console.currentInstance = null
+    clearInterval(this._timer)
+  }
+
+  _updateLogList () {
+    this.setState({
+      logList: Console.cachedLogList
+    })
   }
 
   _renderSeparator = () => {
@@ -211,7 +208,6 @@ export default class Console extends Plugin {
 
   render () {
     // Console.rawConsole.log('xxxxxx', 'Console.render')
-    this._isRender = true
     const {
       logList
     } = this.state

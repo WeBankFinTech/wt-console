@@ -33,14 +33,10 @@ export default class TianYan extends Component {
         ...this.props.options,
         tabLabel: 'Console',
         updateErrorCount: (errorCount) => {
-          this.setState({
-            errorCount: errorCount
-          })
+          this._errorCount = errorCount
         },
         updateWarnCount: (warnCount) => {
-          this.setState({
-            warnCount: warnCount
-          })
+          this._warnCount = warnCount
         }
       },
       <Console />)
@@ -75,6 +71,24 @@ export default class TianYan extends Component {
       onPanResponderGrant: this._onPanResponderGrant,
       onPanResponderMove: this._onPanResponderMove,
       onPanResponderRelease: this._onPanResponderRelease
+    })
+  }
+
+  componentDidMount () {
+    this._updateCount()
+    this._timer = setInterval(() => {
+      this._updateCount()
+    }, 100)
+  }
+
+  componentWillUnmount () {
+    clearInterval(this._timer)
+  }
+
+  _updateCount () {
+    this.setState({
+      errorCount: this._errorCount,
+      warnCount: this._warnCount
     })
   }
 
