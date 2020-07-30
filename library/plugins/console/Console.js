@@ -219,6 +219,12 @@ export default class Console extends Plugin {
       logType.toLowerCase() === logItem.category ||
       logType.toLowerCase() === logItem.logType
     )
+  _getTimestamp (item) {
+    const {showTimestamp} = Console.options
+    if (showTimestamp) {
+      return item.timestamp
+    }
+  }
     return {
       title: logType + `(${consoleList.length})`,
       renderContent: () => (
@@ -228,8 +234,8 @@ export default class Console extends Plugin {
           ListHeaderComponent={this._renderHeader}
           renderItem={({item}) => (
             item.logType === 'groupCollapsed'
-              ? <Group tag={item.msg} value={item.logList} timestamp={item.timestamp} />
-              : <Log value={item.msg} logType={item.logType} timestamp={item.timestamp} />
+              ? <Group tag={item.msg} value={item.logList} timestamp={this._getTimestamp(item)} />
+              : <Log value={item.msg} logType={item.logType} timestamp={this._getTimestamp(item)} />
           )}
           keyExtractor={this._getKey}
           ItemSeparatorComponent={this._renderSeparator}
