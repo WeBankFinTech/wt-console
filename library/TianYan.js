@@ -22,15 +22,23 @@ const LEFT_X = 0
 const RIGHT_X = width - ICON_SIZE
 export default class TianYan extends Component {
   static propTypes = {
+    consoleOptions: PropTypes.object,
+    networkOptions: PropTypes.object,
     options: PropTypes.object
   }
-
+  static defaultProps = {
+    consoleOptions: {},
+    networkOptions: {}
+  }
+  static addPlugin (options, element) {
+    Dashboard.register({}, options, element)
+  }
   constructor (props) {
     super(props)
     Dashboard.register(
       Console,
       {
-        ...this.props.options,
+        ...this.props.consoleOptions,
         tabLabel: 'Console',
         updateErrorCount: (errorCount) => {
           this._errorCount = errorCount
@@ -43,6 +51,7 @@ export default class TianYan extends Component {
     Dashboard.register(
       Network,
       {
+        ...this.props.networkOptions,
         tabLabel: 'Network'
       },
       <Network />

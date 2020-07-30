@@ -32,22 +32,25 @@ const logsToString = (tags) => {
   return strList
 }
 const logToString = (tags, timestamp) => {
-  const t = new Date(timestamp)
-  let eles = [
-    <Text
-      key={timestamp}
-      style={[styles.text, {
-        color: 'gray',
-        fontWeight: 'normal'
-      }]}>{t.getHours()}:{t.getMinutes()}:{t.getSeconds()}.{String(t.getMilliseconds()).padStart(3, '0')}</Text>
-  ]
+  const eles = []
+  if (timestamp !== undefined) {
+    const t = new Date(timestamp)
+    eles.push(
+      <Text
+        key={timestamp}
+        style={[styles.text, {
+          color: 'gray',
+          fontWeight: 'normal'
+        }]}>{t.getHours()}:{t.getMinutes()}:{t.getSeconds()}.{String(t.getMilliseconds()).padStart(3, '0')} </Text>
+    )
+  }
   // Console.rawConsole.log('tags', tags, tags.length)
   for (let i = 0; i < tags.length; i += 1) {
     let tag = toString(tags[i])
     let t = tag.split('%c')
     // Console.rawConsole.log('tag', t)
     if (t.length > 1) {
-      eles.push(<Text style={styles.text} key={i}> {t[0]}</Text>)
+      eles.push(<Text style={styles.text} key={i}>{t[0]} </Text>)
       for (let j = 1; j < t.length; j += 1) {
         const style = parseCSSStyle(tags[i + j], ['color'])
         let color
@@ -61,7 +64,7 @@ const logToString = (tags, timestamp) => {
       }
       i += t.length - 1
     } else {
-      eles.push(<Text style={styles.text} key={i}> {t[0]}</Text>)
+      eles.push(<Text style={styles.text} key={i}>{t[0]} </Text>)
     }
   }
   return eles
@@ -293,7 +296,7 @@ class Log extends Component {
   static propTypes = {
     logType: PropTypes.string,
     value: PropTypes.any,
-    timestamp: PropTypes.number.isRequired
+    timestamp: PropTypes.number
   }
   constructor (props) {
     super(props)
@@ -341,7 +344,9 @@ class Log extends Component {
 
 class Group extends Component {
   static propTypes = {
-    value: PropTypes.any
+    tag: PropTypes.any,
+    value: PropTypes.any,
+    timestamp: PropTypes.number
   }
   constructor (props) {
     super(props)
