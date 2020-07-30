@@ -136,6 +136,11 @@ export default class Console extends Plugin {
       logList: [],
       showLoading: false,
       showResult: false,
+      logListMap: {
+        [TAB_LIST[0]]: [],
+        [TAB_LIST[1]]: [],
+        [TAB_LIST[2]]: []
+      },
       searchTextMap: {
         [TAB_LIST[0]]: '',
         [TAB_LIST[1]]: '',
@@ -143,7 +148,7 @@ export default class Console extends Plugin {
       }
     }
     this._refs = {}
-    this.currentMethod = TAB_LIST[0]
+    this.tabName = TAB_LIST[0]
   }
 
   componentDidMount () {
@@ -158,7 +163,12 @@ export default class Console extends Plugin {
   }
 
   _updateLogList () {
-    this._updateListBySearchText(this.state.searchTextMap[this.currentMethod])
+    this.setState({
+      logListMap: {
+        ...this.state.logListMap,
+        [this.tabName]: this._filterListBySearchText(this.state.searchTextMap[this.tabName])
+      }
+    })
   }
 
   _renderSeparator = () => {
@@ -168,7 +178,7 @@ export default class Console extends Plugin {
   }
 
   _onChange = (index) => {
-    this.currentMethod = TAB_LIST[index]
+    this.tabName = TAB_LIST[index]
   }
   _onRef = (method) => {
     return (ref) => {
@@ -177,30 +187,41 @@ export default class Console extends Plugin {
   }
 
   _gotoBottom = () => {
-    this._refs[this.currentMethod] && this._refs[this.currentMethod].scrollToEnd()
+    this._refs[this.tabName] && this._refs[this.tabName].scrollToEnd()
   }
 
   _getKey = (item, index) => {
     return String(index)
   }
-  _updateListBySearchText = (searchText = '') => {
-    const logType = this.currentMethod.toLowerCase()
+  _filterListBySearchText (searchText) {
+    const logType = this.tabName.toLowerCase()
     const plainSearchText = searchText.toLowerCase().trim()
-    const consoleList = Console.cachedLogList.filter(logItem => {
-      const isSameType = logType === 'all' ||
-        logType === logItem.category ||
-        logType === logItem.logType
-      return isSameType &&
-        (
-          !plainSearchText ||
-          logsToString(logItem.msg).join('').toLowerCase().indexOf(plainSearchText) > -1
-        )
-    })
+    let consoleList
+    if (plainSearchText) {
+      consoleList = Console.cachedLogList.filter(logItem => {
+        const isSameType = logType === 'all' ||
+          logType === logItem.category ||
+          logType === logItem.logType
+        return isSameType &&
+          (
+            !plainSearchText ||
+            logsToString(logItem.msg).join('').toLowerCase().indexOf(plainSearchText) > -1
+          )
+      })
+    } else {
+      consoleList = Console.cachedLogList
+    }
+    return consoleList
+  }
+  _updateListBySearchText = (searchText = '') => {
     this.setState({
-      logList: consoleList,
+      logListMap: {
+        ...this.state.logListMap,
+        [this.tabName]: this._filterListBySearchText(searchText),
+      },
       searchTextMap: {
         ...this.state.searchTextMap,
-        [this.currentMethod]: searchText
+        [this.tabName]: searchText
       }
     })
   }
@@ -210,27 +231,23 @@ export default class Console extends Plugin {
         keyboardType={'default'}
         onEndText={this._updateListBySearchText}
         onCleanText={this._updateListBySearchText}
-        value={this.state.searchTextMap[this.tabName]} />
+        defaultValue={this.state.searchTextMap[this.tabName]} />
     )
   }
-  _renderLog (logType, logList) {
-    const consoleList = logList.filter(logItem =>
-      logType === 'All' ||
-      logType.toLowerCase() === logItem.category ||
-      logType.toLowerCase() === logItem.logType
-    )
   _getTimestamp (item) {
     const {showTimestamp} = Console.options
     if (showTimestamp) {
       return item.timestamp
     }
   }
+  _renderLog (logType) {
+    const logList = this.state.logListMap[logType]
     return {
-      title: logType + `(${consoleList.length})`,
+      title: logType + `(${logList.length})`,
       renderContent: () => (
         <FlatList
           key={logType}
-          data={consoleList}
+          data={logList}
           ListHeaderComponent={this._renderHeader}
           renderItem={({item}) => (
             item.logType === 'groupCollapsed'
@@ -247,10 +264,6 @@ export default class Console extends Plugin {
   }
 
   render () {
-    // Console.rawConsole.log('xxxxxx', 'Console.render')
-    const {
-      logList
-    } = this.state
     const {logServerUrl = ''} = Console.options || {}
     return (
       <View
@@ -263,7 +276,7 @@ export default class Console extends Plugin {
           onChangePage={this._onChange}
           initPage={0}
           pages={TAB_LIST.map((item, index) => {
-            return this._renderLog(item, logList)
+            return this._renderLog(item)
           })}
         />
         <View

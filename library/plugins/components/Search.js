@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 
 export default class Search extends Component {
   static propTypes = {
+    defaultValue: PropTypes.string,
     value: PropTypes.string,
     onChangeText: PropTypes.func,
     onEndText: PropTypes.func,
@@ -32,6 +33,7 @@ export default class Search extends Component {
         margin: 5
       }}>
         <TextInput
+          defaultValue={this.props.defaultValue}
           value={this.props.value}
           style={{
             paddingHorizontal: 5,
