@@ -42,10 +42,10 @@ export default class SimpleApp extends Component {
     return (
       <View style={styles.container}>
         {/* other view */}
-        
+
         {/* 添加下面一行代码即完成接入 */}
         <TianYan />
-        
+
       </View>
     )
   }
@@ -53,16 +53,32 @@ export default class SimpleApp extends Component {
 ```
 
 ### 进阶用法
-这部分主要介绍两个属性：`ignoreRedBox`和`ignoreYellowBox`，RN对警告的处理比较暴力，直接使用浮窗在底部拦截操作，遇到警告比较多的时候非常烦人。官方提供的了ignore的方式，但是用官方的ignore，又担心某些需要关心的警告被忽略。
-wt-console采用了折中的策略，将黄色警告条去除后都收拢到wt-console的图标上展示，出现warning的时候开发者可以自有选择当前是否需要继续查看warning的详细信息。如下代码将错误和警告都收拢到wt-console统一管理。
+
+#### Console插件
+
+默认会展示Console板块，内容类型Chrome中的Console板块。
+
+Console插件支持三个参数：
+- `showTimestamp` 是否在日志前面展示时间戳。布尔类型，默认为false
+- `ignoreRedBox` 是否忽略RN对console.error默认的处理（默认会展示红屏）。布尔类型，默认为false
+- `ignoreYellowBox` 是否忽略RN对console.warn默认的处理（默认会在底部展示小黄条）。布尔类型，默认为false
+
 ``` jsx
 <TianYan
-  options={{
-    ignoreRedBox: true,
-    ignoreYellowBox: true
+  consoleOptions={{
+    showTimestamp: true, // 展示日志时间戳
+    ignoreRedBox: true, // 隐藏默认红屏
+    ignoreYellowBox: true // 隐藏默认小黄条
   }}
 />
 ```
+
+注：
+- 为什么引入`ignoreRedBox`和`ignoreYellowBox`：因为RN对警告的处理比较暴力，直接使用浮窗在底部拦截操作，遇到警告比较多的时候非常烦人。官方提供的了ignore的方式，但是用官方的ignore，又担心某些需要关心的警告被忽略。wt-console采用了折中的策略，将黄色警告条去除后都收拢到wt-console的图标上展示，出现warning的时候开发者可以自有选择当前是否需要继续查看warning的详细信息。如下代码将错误和警告都收拢到wt-console统一管理。
+
+#### Network插件
+
+默认会展示Network板块，展示应用中的网络请求信息。**同时支持一键重发指定请求。**
 
 
 ## ❤️ 我们的其他项目
