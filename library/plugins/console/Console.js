@@ -196,20 +196,16 @@ export default class Console extends Plugin {
   _filterListBySearchText (searchText) {
     const logType = this.tabName.toLowerCase()
     const plainSearchText = searchText.toLowerCase().trim()
-    let consoleList
+    let consoleList = Console.cachedLogList.filter(logItem => {
+      return logType === 'all' ||
+        logType === logItem.category ||
+        logType === logItem.logType
+    })
     if (plainSearchText) {
-      consoleList = Console.cachedLogList.filter(logItem => {
-        const isSameType = logType === 'all' ||
-          logType === logItem.category ||
-          logType === logItem.logType
-        return isSameType &&
-          (
-            !plainSearchText ||
-            logsToString(logItem.msg).join('').toLowerCase().indexOf(plainSearchText) > -1
-          )
+      consoleList = consoleList.filter(logItem => {
+        return !plainSearchText ||
+          logsToString(logItem.msg).join('').toLowerCase().indexOf(plainSearchText) > -1
       })
-    } else {
-      consoleList = Console.cachedLogList
     }
     return consoleList
   }
