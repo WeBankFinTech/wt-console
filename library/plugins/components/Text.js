@@ -31,5 +31,6 @@ export default function SelectableText (props = {}) {
 
 
 export {
-  MonospaceText
+  MonospaceText,
+  monospaceFont
 }

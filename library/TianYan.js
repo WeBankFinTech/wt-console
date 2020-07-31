@@ -85,13 +85,22 @@ export default class TianYan extends Component {
 
   componentDidMount () {
     this._updateCount()
-    this._timer = setInterval(() => {
-      this._updateCount()
+    this._autoRefresh()
+  }
+
+  _autoRefresh () {
+    this._timer = setTimeout(() => {
+      if (this._prevErrorCount !== this._errorCount || this._prevWarnCount !== this._warnCount) {
+        this._prevErrorCount = this._errorCount
+        this._prevWarnCount = this._warnCount
+        this._updateCount()
+      }
+      this._autoRefresh()
     }, 100)
   }
 
   componentWillUnmount () {
-    clearInterval(this._timer)
+    clearTimeout(this._timer)
   }
 
   _updateCount () {

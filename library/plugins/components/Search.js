@@ -3,6 +3,7 @@ import { View, TextInput } from 'react-native'
 import { realOnePixel } from '../utils/DumpObject'
 import Button from './Button'
 import PropTypes from 'prop-types'
+import {monospaceFont} from './Text'
 
 export default class Search extends Component {
   static propTypes = {
@@ -36,14 +37,17 @@ export default class Search extends Component {
           defaultValue={this.props.defaultValue}
           value={this.props.value}
           style={{
+            paddingVertical: 0,
             paddingHorizontal: 5,
             height: 40,
             fontSize: 16,
+            fontFamily: monospaceFont,
             borderWidth: realOnePixel,
             borderColor: 'gray',
             borderRadius: 5,
             flex: 1
           }}
+          underlineColorAndroid={'transparent'}
           keyboardType={this.props.keyboardType}
           autoCorrect={false}
           iosreturnKeyType={'search'}

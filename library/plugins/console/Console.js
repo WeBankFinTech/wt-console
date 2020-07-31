@@ -149,17 +149,26 @@ export default class Console extends Plugin {
     }
     this._refs = {}
     this.tabName = TAB_LIST[0]
+    this.preLogList = null
   }
 
   componentDidMount () {
     this._updateLogList()
-    this._timer = setInterval(() => {
-      this._updateLogList()
+    this._autoRefresh()
+  }
+
+  _autoRefresh () {
+    this._timer = setTimeout(() => {
+      if (this.preLogList !== Console.cachedLogList) {
+        this.preLogList = Console.cachedLogList
+        this._updateLogList()
+      }
+      this._autoRefresh()
     }, 500)
   }
 
   componentWillUnmount () {
-    clearInterval(this._timer)
+    clearTimeout(this._timer)
   }
 
   _updateLogList () {
