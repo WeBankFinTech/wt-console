@@ -29,7 +29,7 @@ class ProxyFetch {
     this._reFetchList = []
     this._callback = []
     this._reCallback = []
-    this.rawFetch = window.fetch
+    this.rawFetch = window.fetch.bind(window)
     window.fetch = (input, init) => {
       const newInput = input instanceof Request ? input.clone() : input
       const p = this.rawFetch(input, init)
