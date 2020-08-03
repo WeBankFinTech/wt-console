@@ -172,10 +172,30 @@ export default class Console extends Plugin {
   }
 
   _updateLogList () {
+    const Warn = TAB_LIST[1].toLowerCase()
+    const Error = TAB_LIST[2].toLowerCase()
+    const searchText1 = this.state.searchTextMap[TAB_LIST[0]]
+    const searchText2 = this.state.searchTextMap[TAB_LIST[1]]
+    const searchText3 = this.state.searchTextMap[TAB_LIST[2]]
+
+    const allList = []
+    const warnList = []
+    const errorList = []
+    Console.cachedLogList.forEach((logItem) => {
+      if (!searchText2 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText1) > -1) {
+        allList.push(logItem)
+      }
+      if (logItem.logType === Warn && (!searchText2 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText2) > -1)) {
+        warnList.push(logItem)
+      } else if (logItem.logType === Error && (!searchText3 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText3) > -1)) {
+        errorList.push(logItem)
+      }
+    })
     this.setState({
       logListMap: {
-        ...this.state.logListMap,
-        [this.tabName]: this._filterListBySearchText(this.state.searchTextMap[this.tabName])
+        [TAB_LIST[0]]: allList,
+        [TAB_LIST[1]]: warnList,
+        [TAB_LIST[2]]: errorList
       }
     })
   }
@@ -202,18 +222,15 @@ export default class Console extends Plugin {
   _getKey = (item, index) => {
     return String(index)
   }
-  _filterListBySearchText (searchText) {
-    const logType = this.tabName.toLowerCase()
+  _filterListBySearchText (searchText, tabName = this.tabName) {
+    const logType = tabName.toLowerCase()
     const plainSearchText = searchText.toLowerCase().trim()
     let consoleList = Console.cachedLogList.filter(logItem => {
-      return logType === 'all' ||
-        logType === logItem.category ||
-        logType === logItem.logType
+      return logType === 'all' || logType === logItem.logType
     })
     if (plainSearchText) {
       consoleList = consoleList.filter(logItem => {
-        return !plainSearchText ||
-          logsToString(logItem.msg).join('').toLowerCase().indexOf(plainSearchText) > -1
+        return logsToString(logItem.msg).join('').toLowerCase().indexOf(plainSearchText) > -1
       })
     }
     return consoleList
