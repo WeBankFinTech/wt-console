@@ -85,9 +85,9 @@ export default class Console extends Plugin {
   static addLog (formattedLog) {
     // 把groupCollapsed组合成一组
     // this.rawConsole.log(`formattedLog${formattedLog.logType}:`, formattedLog)
-    if (formattedLog.logType === 'error') {
+    if (formattedLog.logType === 'error' && !Console._concatGroup) {
       Console._errorLogCount += 1
-    } else if (formattedLog.logType === 'warn') {
+    } else if (formattedLog.logType === 'warn' && !Console._concatGroup) {
       Console._warnLogCount += 1
     }
     if (formattedLog.logType === 'groupCollapsed' && !Console._tmpConsoleGroup && !Console._concatGroup) {
