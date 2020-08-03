@@ -173,6 +173,7 @@ class ProxyFetch {
       this._emit(isResend)
     }).catch((err) => {
       // console.log('fail', err)
+      data.endTimestamp = Date.now()
       data.isFinish = true
       data.error = err.toString()
       this._emit(isResend)
@@ -194,7 +195,7 @@ class FetchLog extends Component {
       isShow: !this.state.isShow
     })
   }
-  _getColor (status) {
+  _getColor ({status, isFinish}) {
     if (
       (status >= 100 && status < 200) ||
       (status >= 200 && status < 300)
@@ -204,7 +205,8 @@ class FetchLog extends Component {
       return StyleValues.WarningColor
     } else if (
       (status >= 400 && status < 500) ||
-      (status >= 500 && status < 600)
+      (status >= 500 && status < 600) ||
+      isFinish
     ) {
       return StyleValues.ErrorColor
     } else {
@@ -215,7 +217,7 @@ class FetchLog extends Component {
     const keys = ['method', 'url', 'reqHeaders', 'reqBody', 'resHeaders', 'resBody', 'error']
     const showList = [{
       key: 'time',
-      value: `${(new Date(data.startTimestamp)).toLocaleString('zh-CN')}（${data.endTimestamp - data.startTimestamp}ms）`
+      value: `${(new Date(data.startTimestamp)).toLocaleString()}（${data.endTimestamp - data.startTimestamp}ms）`
     }]
     keys.forEach((key) => {
       if (typeof data[key] === 'string' && data[key]) {
@@ -227,11 +229,15 @@ class FetchLog extends Component {
     })
     return showList
   }
-  _getStatusDesc (status) {
-    if (status === undefined) {
-      return 'pending'
+  _getStatusDesc ({status, isFinish}) {
+    if (isFinish) {
+      if (status === undefined) {
+        return '(failed)'
+      } else {
+        return status
+      }
     } else {
-      return status
+      return '(pending)'
     }
   }
   _onPressItem (key) {
@@ -279,7 +285,7 @@ class FetchLog extends Component {
     const {
       data
     } = this.props
-    const color = this._getColor(data.status)
+    const color = this._getColor(data)
 
     return (
       <View>
@@ -291,15 +297,18 @@ class FetchLog extends Component {
           }}>
             <Text style={{color: color, fontWeight: 'bold', marginRight: 5}}>{data.rid}</Text>
             <Text numberOfLines={1} style={{flex: 1, color: color}}>{data.path}</Text>
-            <Text style={{marginLeft: 5, color: color, fontWeight: 'bold'}}>{this._getStatusDesc(data.status)}</Text>
+            <Text style={{marginLeft: 5, color: color, fontWeight: 'bold'}}>{this._getStatusDesc(data)}</Text>
           </View>
         </TouchableOpacity>
         {this.state.isShow
           ? <View style={{
-            padding: 5,
-            alignItems: 'flex-start'
+            padding: 5
           }}>
-            <Button style={{marginBottom: 5}} disabled={this.state.disabled} text={'请求重发'} onPress={this.onPressRequest} />
+            <View style={{
+              alignItems: 'flex-start'
+            }}>
+              <Button style={{marginBottom: 5}} disabled={this.state.disabled} text={'请求重发'} onPress={this.onPressRequest} />
+            </View>
             {this._getShowList(data).map(this._renderItemDetail)}
           </View>
           : null}
