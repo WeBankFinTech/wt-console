@@ -1,11 +1,10 @@
 import Plugin from '../Plugin'
 import { FetchLog, ProxyFetch } from '../utils/ProxyFetch'
-import { FlatList, View, TextInput } from 'react-native'
+import { FlatList, View } from 'react-native'
 import React from 'react'
 import Tab from '../../components/Tab'
 import ButtonGroup from '../components/ButtonGroup'
 import { realOnePixel } from '../utils/DumpObject'
-import Button from '../components/Button'
 import Search from '../components/Search'
 
 const TABS = {
