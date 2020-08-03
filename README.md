@@ -86,7 +86,7 @@ Console插件支持三个参数：
 // 使用react-native-web进行演示
 cd react-native-web-demo
 npm i
-npm start
+npm start // 将自动在浏览器打开
 ```
 
 
