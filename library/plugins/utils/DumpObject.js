@@ -317,9 +317,19 @@ class Log extends Component {
       logType
     } = this.props
     if (logType === 'warn') {
-      return '#FFCD36'
+      return 'rgb(94, 61, 12)'
     } else if (logType === 'error') {
-      return '#FF0000'
+      return 'rgb(255, 6, 27)'
+    }
+  }
+  _getBgColor () {
+    const {
+      logType
+    } = this.props
+    if (logType === 'warn') {
+      return 'rgb(255, 251, 231)'
+    } else if (logType === 'error') {
+      return 'rgb(255, 240, 240)'
     }
   }
   render () {
@@ -332,7 +342,7 @@ class Log extends Component {
     } = this.state
     const str = logToString(value, timestamp)
     const color = this._getColor()
-    const bgColor = color ? `${color}55` : undefined
+    const bgColor = color ? this._getBgColor() : undefined
     return (
       <View style={[{backgroundColor: bgColor}, this.props.style]}>
         <Arrow color={color} show={show} str={str} log={logsToString(value).join(' ')} onPress={this._onToggle} />
