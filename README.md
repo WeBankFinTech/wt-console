@@ -80,6 +80,15 @@ Console插件支持三个参数：
 
 默认会展示Network板块，展示应用中的网络请求信息。**同时支持一键重发指定请求。**
 
+### 开发调试
+
+```shell script
+// 使用react-native-web进行演示
+cd react-native-web-demo
+npm i
+npm start
+```
+
 
 ## ❤️ 我们的其他项目
 
