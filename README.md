@@ -86,6 +86,7 @@ Console插件支持三个参数：
 // 使用react-native-web进行演示
 cd react-native-web-demo
 npm i
+npm run syncLib // 将 library 同步到 react-native-web-demo/src/ 下面
 npm start // 将自动在浏览器打开
 ```
 
