@@ -182,7 +182,7 @@ export default class Console extends Plugin {
     const warnList = []
     const errorList = []
     Console.cachedLogList.forEach((logItem) => {
-      if (!searchText2 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText1) > -1) {
+      if (!searchText1 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText1) > -1) {
         allList.push(logItem)
       }
       if (logItem.logType === Warn && (!searchText2 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText2) > -1)) {
@@ -251,7 +251,7 @@ export default class Console extends Plugin {
     return (
       <Search
         keyboardType={'default'}
-        onEndText={this._updateListBySearchText}
+        onMaybeFinish={this._updateListBySearchText}
         onCleanText={this._updateListBySearchText}
         defaultValue={this.state.searchTextMap[this.tabName]} />
     )

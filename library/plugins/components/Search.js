@@ -12,7 +12,8 @@ export default class Search extends Component {
     onChangeText: PropTypes.func,
     onEndText: PropTypes.func,
     onCleanText: PropTypes.func,
-    keyboardType: PropTypes.string
+    keyboardType: PropTypes.string,
+    onMaybeFinish:PropTypes.func
   }
   static defaultProps = {
     keyboardType: 'ascii-capable'
@@ -22,6 +23,17 @@ export default class Search extends Component {
   }
   _onChangeText = (text) => {
     this.props.onChangeText && this.props.onChangeText(text)
+
+    if (this.props.onMaybeFinish) {
+      if (this.textChangeTimer) {
+        clearTimeout(this.textChangeTimer)
+        this.textChangeTimer = false
+      }
+
+      this.textChangeTimer = setTimeout(() => {
+        this.props.onMaybeFinish(text)
+      }, 1000)
+    }
   }
   _onEndEditing = (event) => {
     this.props.onEndText && this.props.onEndText(event.nativeEvent.text)

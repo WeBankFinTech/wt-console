@@ -24,13 +24,13 @@ export default class Network extends Plugin {
     Network._proxyFetch = new ProxyFetch(window)
     Network._proxyFetch.onUpdate((fetchList) => {
       if (Network.currentInstance && !Network.currentInstance._isRender) {
-        Network.currentInstance._updateList(TABS.Request, fetchList)
+        Network.currentInstance._updateListBySearchText()
       }
     })
     // 请求重发更新
     Network._proxyFetch.onReUpdate((fetchList) => {
       if (Network.currentInstance && !Network.currentInstance._isRender) {
-        Network.currentInstance._updateList(TABS.ReRequest, fetchList)
+        Network.currentInstance._updateListBySearchText()
       }
     })
   }
@@ -85,7 +85,7 @@ export default class Network extends Plugin {
     })
   }
 
-  _updateListBySearchText = (searchText = '') => {
+  _updateListBySearchText = (searchText = this.state.searchTextMap[this.tabName]) => {
     const list = Network._getFetchList(this.tabName)
     this.setState({
       searchTextMap: {
@@ -105,7 +105,7 @@ export default class Network extends Plugin {
   _renderHeader = () => {
     return (
       <Search
-        onChangeText={this._updateListBySearchText}
+        onMaybeFinish={this._updateListBySearchText}
         onCleanText={this._updateListBySearchText}
         value={this.state.searchTextMap[this.tabName]}
       />
