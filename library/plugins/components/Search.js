@@ -18,8 +18,18 @@ export default class Search extends Component {
   static defaultProps = {
     keyboardType: 'ascii-capable'
   }
+
+  constructor () {
+    super(...arguments)
+    this.state = {
+      value: this.props.value
+    }
+  }
   _onClean = () => {
     this.props.onCleanText && this.props.onCleanText('')
+    this.setState({
+      value: ''
+    })
   }
   _onChangeText = (text) => {
     this.props.onChangeText && this.props.onChangeText(text)

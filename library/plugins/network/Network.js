@@ -107,7 +107,7 @@ export default class Network extends Plugin {
       <Search
         onMaybeFinish={this._updateListBySearchText}
         onCleanText={this._updateListBySearchText}
-        value={this.state.searchTextMap[this.tabName]}
+        defaultValue={this.state.searchTextMap[this.tabName]}
       />
     )
   }
