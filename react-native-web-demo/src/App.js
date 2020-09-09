@@ -25,6 +25,12 @@ class App extends React.Component {
     fetch('https://static.geetest.com/static/js/fullpage.8.9.600.js')
     fetch('https://static.geetest.com/static/wind/sprite2x.1.5.8.png')
     fetch('https://static.geetest.com/static/js/fullpage.8.9.6.js')
+    setInterval(() => {
+      fetch('https://static.geetest.com/static/js/fullpage.8.9.6.js?ts=' + new Date().getTime())
+      console.log('some log ' + new Date().getTime())
+      console.warn('some warning ' + new Date().getTime())
+      console.error('some error ' + new Date().getTime())
+    }, 5000)
   }
 
   render () {
