@@ -14,7 +14,7 @@ function MonospaceText (props = {}) {
   return <Text
     style={[
       {
-        fontFamily: monospaceFont,
+        fontFamily: monospaceFont
       },
       style
     ]}
@@ -28,7 +28,6 @@ export default function SelectableText (props = {}) {
   } = props
   return <MonospaceText selectable {...restProps}>{children}</MonospaceText>
 }
-
 
 export {
   MonospaceText,

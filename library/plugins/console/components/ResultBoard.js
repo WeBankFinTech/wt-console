@@ -16,11 +16,12 @@ export default class Loading extends Component {
     visibility: PropTypes.bool,
     logId: PropTypes.number,
     logServerUrl: PropTypes.string,
-
+    status: PropTypes.string,
     onPressBack: PropTypes.func
   }
 
   render () {
+    const { status = 'success' } = this.props
     if (!this.props.visibility) {
       return null
     }
@@ -38,7 +39,7 @@ export default class Loading extends Component {
       }}>
         <Image
           style={{marginTop: 100}}
-          source={require('../images/icon_success.png')}/>
+          source={status === 'success' ? require('../images/icon_success.png') : require('../images/icon_fail.png')} />
         <View style={{
           marginTop: 10,
           paddingLeft: 20,
@@ -50,16 +51,21 @@ export default class Loading extends Component {
           <Text
             style={{
               fontSize: 36,
-              color: 'green',
-            }}>{this.props.logId}</Text>
+              color: status === 'success' ? 'green' : 'red'
+            }}>{status}!</Text>
         </View>
-        {this.props.logServerUrl ? <Text style={{marginTop: 10}}>Log has been uploaded to {this.props.logServerUrl}</Text> : null}
-        <Text style={{marginTop: 10}}>You can get log detail in your browser</Text>
+        {status === 'success' ? <View>
+          {this.props.logServerUrl ? <Text style={{marginTop: 10}}>Logs is uploading to {this.props.logServerUrl}</Text> : null}
+          <Text style={{marginTop: 10}}>You can check log detail in browser</Text>
+          <Text style={{marginTop: 10}}>Select your device_id: {this.props.deviceId}</Text>
+        </View> : <View>
+          <Text style={{marginTop: 10}}>submit logs to server fail...</Text>
+        </View>
+        }
 
         <TouchableHighlight onPress={this.props.onPressBack}>
           <Text style={{marginTop: 10, fontSize: 18, color: '#00AA0088'}}>Back To Console </Text>
         </TouchableHighlight>
-
       </View>
     )
   }

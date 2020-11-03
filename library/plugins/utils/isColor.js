@@ -153,7 +153,7 @@ const isHexColor = (str) => {
     new RegExp(`^#${u}{3}$`),
     new RegExp(`^#${u}{4}$`),
     new RegExp(`^#${u}{6}$`),
-    new RegExp(`^#${u}{8}$`),
+    new RegExp(`^#${u}{8}$`)
   ].some((item) => item.test(str))
 }
 const isRGBColor = (str) => {

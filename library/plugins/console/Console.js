@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   PixelRatio,
   FlatList
+  // Switch
 } from 'react-native'
 
 import React from 'react'
@@ -13,8 +14,14 @@ import ResultBoard from './components/ResultBoard'
 import { Log, Group, realOnePixel, logsToString } from '../utils/DumpObject'
 import Tab from '../../components/Tab'
 import Search from '../components/Search'
+import { stringify } from '../utils/Json'
 
 const TAB_LIST = ['All', 'Warn', 'Error']
+
+let uploadInterval
+let toggleIndex = -1
+const uploadLogNum = 10
+let isUploading = false
 
 export default class Console extends Plugin {
   static isProxy = false
@@ -145,7 +152,8 @@ export default class Console extends Plugin {
         [TAB_LIST[0]]: '',
         [TAB_LIST[1]]: '',
         [TAB_LIST[2]]: ''
-      }
+      },
+      toggleUpload: Console.toggleUpload || false
     }
     this._refs = {}
     this.tabName = TAB_LIST[0]
@@ -182,7 +190,7 @@ export default class Console extends Plugin {
     const warnList = []
     const errorList = []
     Console.cachedLogList.forEach((logItem) => {
-      if (!searchText1 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText1) > -1) {
+      if (!searchText2 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText1) > -1) {
         allList.push(logItem)
       }
       if (logItem.logType === Warn && (!searchText2 || logsToString(logItem.msg).join('').toLowerCase().indexOf(searchText2) > -1)) {
@@ -239,7 +247,7 @@ export default class Console extends Plugin {
     this.setState({
       logListMap: {
         ...this.state.logListMap,
-        [this.tabName]: this._filterListBySearchText(searchText),
+        [this.tabName]: this._filterListBySearchText(searchText)
       },
       searchTextMap: {
         ...this.state.searchTextMap,
@@ -286,7 +294,8 @@ export default class Console extends Plugin {
   }
 
   render () {
-    const {logServerUrl = ''} = Console.options || {}
+    const { logServerUrl = '' } = Console.options || {}
+    const { toggleUpload } = this.state
     return (
       <View
         style={{
@@ -334,7 +343,7 @@ export default class Console extends Plugin {
               borderColor: Console.theme.borderColorGray
             }} />
           <TouchableOpacity
-            onPress={this._onPressUpload.bind(this)}
+            onPress={this._onPressToggleUpload.bind(this)}
             underlayColor={'#EEE'}
             style={{
               flex: 1
@@ -348,7 +357,7 @@ export default class Console extends Plugin {
               }}>
               <Text style={{
                 color: '#414951'
-              }}>Upload</Text>
+              }}>{toggleUpload ? 'StopUpload' : 'AutoUpload'}</Text>
             </View>
           </TouchableOpacity>
           <View
@@ -380,7 +389,7 @@ export default class Console extends Plugin {
 
         <ResultBoard
           logServerUrl={logServerUrl}
-          logId={this.state.uploadedLogId}
+          deviceId={Console.options.deviceId}
           onPressBack={() => {
             this.setState({
               showResult: false
@@ -392,8 +401,8 @@ export default class Console extends Plugin {
     )
   }
 
-  _onPressUpload () {
-    const {addToRemote} = Console.options
+  _onPressUpload (startIndex, endIndex) {
+    const { addToRemote, ServerHost, userId, deviceId } = Console.options
     if (addToRemote) {
       this.setState({showLoading: true})
       addToRemote(Console.cachedLogList)
@@ -410,6 +419,49 @@ export default class Console extends Plugin {
           })
           console.error(err)
         })
+    } else {
+      const sessionId = `${Date.now()}-${Math.random()}`
+      const logs = Console.cachedLogList
+      const body = JSON.stringify({
+        app_id: 'webank_app',
+        user_id: userId,
+        device_id: deviceId,
+        session_id: sessionId,
+        log_list: logs.slice(startIndex, endIndex).map(item => {
+          return {
+            log_time: item.timestamp,
+            log_type: item.logType,
+            log_format: 'json',
+            log_content: stringify({title: item.msg, content: item.logList})
+          }
+        })
+      })
+      const resultParams = {
+        showLoading: false,
+        showResult: true
+      }
+      return fetch(`${ServerHost}/wt/v1/logs/add`, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: body
+      })
+        .then(response => {
+          return response.json()
+        })
+        .then((res) => {
+          resultParams.status = 'success'
+          this.setState(resultParams)
+        })
+        .catch(err => {
+          resultParams.status = 'fail'
+          this.setState(resultParams)
+          console.log('wt-console add logs', err)
+          isUploading = false
+        })
     }
   }
 
@@ -418,6 +470,54 @@ export default class Console extends Plugin {
     this.setState({
       logList: []
     })
+  }
+
+  _onPressToggleUpload () {
+    clearInterval(uploadInterval)
+    toggleIndex = Console.cachedLogList.length ? Console.cachedLogList.length - 1 : 0
+    const { toggleUpload: _toggleUpload } = this.state
+    const toggleUpload = !_toggleUpload
+    Console.toggleUpload = toggleUpload
+    isUploading = toggleUpload
+    this.setState({
+      toggleUpload
+    })
+
+    if (isUploading) {
+      // 每3秒轮训一次进行请求
+      this._startUploadInterval()
+    } else {
+      console.log(`结束自动上报日志`)
+    }
+  }
+
+  _startUploadInterval () {
+    clearInterval(uploadInterval)
+    console.log(`开始日志自动上报，从第${toggleIndex}条开始`)
+    uploadInterval = setInterval(() => {
+      if (isUploading) {
+        this._loopUpload()
+      } else {
+        Console.toggleUpload = false
+        this.setState({
+          toggleUpload: false
+        })
+        clearInterval(uploadInterval)
+        console.log(`结束自动上报日志`)
+      }
+    }, 3000)
+  }
+
+  _loopUpload () {
+    const lastIndex = Console.cachedLogList.length - 2
+    const endIndex = Math.min(lastIndex - 1, toggleIndex + uploadLogNum)
+    if (endIndex > toggleIndex) {
+      this._onPressUpload(toggleIndex, endIndex)
+      // console.log(`上报第${toggleIndex}-${endIndex}条日志`)
+    } else {
+      // console.log(`当前日志上报完毕，总数：${endIndex}等待中`)
+    }
+    toggleIndex = endIndex
   }
 }
 

@@ -42,7 +42,7 @@ class ProxyFetch {
     return this._fetchList
   }
 
-  getReFetchList() {
+  getReFetchList () {
     return this._reFetchList
   }
 

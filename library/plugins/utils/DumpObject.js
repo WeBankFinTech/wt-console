@@ -309,9 +309,9 @@ class Log extends Component {
       show: !this.state.show
     })
   }
-  componentDidCatch (error) {
-    // Console.rawConsole.log(error)
-  }
+  // componentDidCatch (error) {
+  //   // Console.rawConsole.log(error)
+  // }
   _getColor () {
     const {
       logType
@@ -369,9 +369,9 @@ class Group extends Component {
       show: !this.state.show
     })
   }
-  componentDidCatch (error) {
-    // Console.rawConsole.log(error)
-  }
+  // componentDidCatch (error) {
+  //   // Console.rawConsole.log(error)
+  // }
   _toString (tag, list) {
     return `\
 group: ${logsToString(tag).join(' ')}
@@ -420,5 +420,6 @@ export {
   Log,
   Group,
   realOnePixel,
-  logsToString
+  logsToString,
+  Copy
 }

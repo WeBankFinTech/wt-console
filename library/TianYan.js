@@ -16,7 +16,7 @@ import Dashboard from './Dashboard'
 import Console from './plugins/console/Console'
 import Network from './plugins/network/Network'
 
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window')
 const ICON_SIZE = 50
 const LEFT_X = 0
 const RIGHT_X = width - ICON_SIZE
@@ -213,7 +213,7 @@ export default class TianYan extends Component {
       }],
       opacity: this.state.expendAnim.interpolate({
         inputRange: [0, 100],
-        outputRange: [0, 1],
+        outputRange: [0, 1]
       })
     }
   }
@@ -222,7 +222,7 @@ export default class TianYan extends Component {
     return {
       opacity: this.state.expendAnim.interpolate({
         inputRange: [0, 80, 100],
-        outputRange: [1, 1, 0],
+        outputRange: [1, 1, 0]
       }),
       transform: [{
         translateY: this.state.expendAnim.interpolate({
@@ -258,7 +258,7 @@ export default class TianYan extends Component {
         <Image
           style={{
             width: ICON_SIZE,
-            height: ICON_SIZE,
+            height: ICON_SIZE
           }}
           resizeMode={'contain'}
           source={require('./images/tianyan-icon.png')}
@@ -289,8 +289,7 @@ export default class TianYan extends Component {
           }} onPress={this._toggleDashboard}>
             <View style={{
               flex: 1
-            }}>
-            </View>
+            }} />
           </TouchableOpacity>
         </View>
         {showDashboard ? <Dashboard /> : null}

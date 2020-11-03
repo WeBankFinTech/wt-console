@@ -31,9 +31,9 @@ export default class Loading extends Component {
         backgroundColor: '#EEEEEEDD'
       }}>
         <ActivityIndicator
-          animating={true}
+          animating
           style={[{height: 80}]}
-          size="large"/>
+          size='large' />
       </View>
     )
   }
