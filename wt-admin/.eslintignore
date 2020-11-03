@@ -1,0 +1,3 @@
+src/assets/*
+*.d.ts
+webpack/*

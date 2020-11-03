@@ -1,0 +1,28 @@
+{
+  "name": "@webank/wt-server",
+  "version": "0.1.0",
+  "description": "An example Parse API server using the parse-server module",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "start": "node wt/v1/server",
+    "url": "https://github.com/ParsePlatform/parse-server-example"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "~4.11.x",
+    "kerberos": "~0.0.x",
+    "lodash": "^4.17.20",
+    "mongoose": "^5.9.15",
+    "parse": "~1.8.0",
+    "parse-server": "*"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "wt": "node wt/v1/server.js"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "jshint": "^2.12.0"
+  }
+}
