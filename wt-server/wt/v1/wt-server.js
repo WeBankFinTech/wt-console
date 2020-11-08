@@ -2,28 +2,29 @@ const express = require('express')
 const db = require('mongoose')
 const logs = require('./logs')
 const bodyParser = require('body-parser')
+const config = require('./../../config')
 
 const app = express()
 app.use(bodyParser.json(bodyParser.json({limit: '50mb', extended: true})))
 
-// 创建 application/x-www-form-urlencoded 编码解析，方便拿到req.body对象
+// create application/x-www-form-urlencoded，easy to get req.body
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
 
-// 连数据库
-const dbLink = db.createConnection('mongodb://localhost:27017/wt', {
+// connect mongodb
+const dbLink = db.createConnection(`mongodb://${config.mongoUri}/wt`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
 
 dbLink.on('open', err => {
   if (!err) {
-    console.log('数据库连接成功！')
+    console.log('connect mongo success！')
   } else {
-    console.log('数据库连接失败', err)
+    console.log('connect mongo fail', err)
   }
 })
 
-// 定义Interface
+// Interface
 const LogSchema = new db.Schema({
   app_id: String,
   user_id: String,
@@ -37,42 +38,41 @@ const LogSchema = new db.Schema({
   log_format: String
 })
 
-// 绑定Model
-// const LogsModel = dbLink.model('logsv1', LogSchema)
-
 const setCORS = res => {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Headers', 'Content-type')
-  res.header(
-    'Access-Control-Allow-Methods',
-    'PUT,POST,GET,DELETE,OPTIONS,PATCH'
-  )
-  res.header('Access-Control-Max-Age', 1728000) //预请求缓存20天
+  if (config.allowCrossOrigin) {
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header('Access-Control-Allow-Headers', 'Content-type')
+    res.header(
+      'Access-Control-Allow-Methods',
+      'PUT,POST,GET,DELETE,OPTIONS,PATCH'
+    )
+  }
+  res.header('Access-Control-Max-Age', 1728000) // prefetch cache 20 days
   return res
 }
 
-// 查询logs
+// get logs
 app.get('/wt/v1/logs/get', async (req, res) => {
   const ret = await logs.get(req, res, dbLink, LogSchema)
   setCORS(res)
   res.send(ret)
 })
 
-// 新增logs
+// add logs
 app.post('/wt/v1/logs/add', async (req, res) => {
   const ret = await logs.add(req, res, dbLink, LogSchema)
   setCORS(res)
   res.send(ret)
 })
 
-// 查询设备id
+// get all deviceIds
 app.get('/wt/v1/logs/get_device_ids', async (req, res) => {
   const ret = await logs.get_device_ids(req, res, dbLink)
   setCORS(res)
   res.send(ret)
 })
 
-// 根据id查询日志
+// get logs by id
 app.get('/wt/v1/logs/get_log_by_id', async (req, res) => {
   const ret = await logs.get_log_by_id(req, res, dbLink)
   setCORS(res)

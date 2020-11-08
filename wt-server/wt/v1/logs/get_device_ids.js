@@ -8,7 +8,7 @@ module.exports = (req, res, dbLink) => {
       const body = req.query
       const output = getOutput()
 
-      // 掏出数据库wt下的所有collection
+      // get all collections
       let collectNames = []
       dbLink.db.collections().then(collects => {
         for (let c of collects) {

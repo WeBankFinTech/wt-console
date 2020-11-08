@@ -2,11 +2,10 @@ const getOutput = require('../constants/output')
 
 module.exports = (req, res, dbLink, LogSchema) => {
   return new Promise((resolve, reject) => {
-    // device_id判断
     const body = req.body
     if (!body.device_id) {
       const output = getOutput()
-      output.msg = '缺少参数device_id'
+      output.msg = 'need device_id'
       output.code = 3
       console.log('output', output)
       resolve(output)
@@ -15,13 +14,13 @@ module.exports = (req, res, dbLink, LogSchema) => {
 
     const LogModel = dbLink.model(`wt-logs-${body.device_id}`, LogSchema)
 
-    // 存入失败处理
+    // handle failure
     let errs = []
     const fnSaveErr = err => {
       errs.push(err)
     }
 
-    // 遍历并储存对象
+    // loop log
     body.log_list.forEach(item => {
       let Log = new LogModel()
 
@@ -39,7 +38,8 @@ module.exports = (req, res, dbLink, LogSchema) => {
     })
 
     const output = getOutput()
-    // 日志记录
+
+    // print log
     if (!errs.length) {
       output.msg = 'Add logs succeed!'
       output.code = 0
@@ -60,7 +60,6 @@ module.exports = (req, res, dbLink, LogSchema) => {
       console.log('')
     }
 
-    // 返回数据
     output.data = null
     resolve(output)
   })
