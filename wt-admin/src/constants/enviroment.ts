@@ -1,2 +1,4 @@
-export const isLocalEnv = location.href.indexOf('localhost') > -1;
-export const serverHost = isLocalEnv ? 'http://localhost:8003' : 'http://app.webank.com:8003';
+import { serverHostUrl, localHostUrl, port } from './../../config'
+
+export const isLocalEnv = location.href.includes(localHostUrl)
+export const serverHost = isLocalEnv ? `${localHostUrl}${port}` : `${serverHostUrl}${port}`;

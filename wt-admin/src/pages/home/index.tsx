@@ -2,12 +2,10 @@ import React, { Component } from 'react'
 import axios from 'axios'
 
 import { List, Spin, Layout, Breadcrumb, Input, Select, Form } from 'antd'
-// import VList from 'react-virtualized/dist/commonjs/List';
 import moment from 'moment'
 import _ from 'lodash'
 import { serverHost } from '../../constants/enviroment'
 import { titleToString, deepParseObj } from '../../services'
-// import ReactJson from 'react-json-view'
 import JSONTree from 'react-json-tree'
 import $ from 'jquery'
 require('jquery-scrollstop')
@@ -16,11 +14,10 @@ const { Content } = Layout
 const { Search } = Input
 const { Option } = Select
 
-// let fetchInterval
 let fetchTimeout
 let duration = 3000
 
-// 日志含以下可过滤
+// auto filt logs
 const filterList = ['This is a no-op', 'wt/v1/logs/add', 'wt-console']
 
 const layout = {}
@@ -45,7 +42,7 @@ class Home extends Component {
     moment.locale('zh-cn')
     this.requestDeviceIds()
 
-    // 获取缓存deviceId
+    // cache deviceId
     const queryObj = this.parseQueryString()
     this.setState({
       deviceId: queryObj.device_id || localStorage.getItem('wt-cache-device-id') || '',
@@ -82,7 +79,6 @@ class Home extends Component {
     }
 
     if (prevState.data !== data && data.length && isKeepListOnBottom) {
-      // 自动保持在底部
       $('#listWrap')[0].scrollTop = $('#listWrap > .ant-list')[0].offsetHeight
     }
   }
@@ -208,9 +204,6 @@ class Home extends Component {
       <JSONTree
         data={parsedData}
         theme={'google'}
-        // getItemString={(type, data, itemType, itemString) => (
-        //   <div style={color ? { color: `#${color}` } : null}>{parsedTitle}</div>
-        // )}
         labelRenderer={([keyPath, nodeType, expanded, expandable], a) => (
           <span style={color ? { color: `#${color}` } : null}>{keyPath}</span>
         )}
@@ -253,8 +246,8 @@ class Home extends Component {
     return (
       <Layout style={{ padding: '0 24px 24px', height: '100%' }}>
         <Breadcrumb style={{ margin: '16px 0' }}>
-          <Breadcrumb.Item>天眼日志</Breadcrumb.Item>
-          <Breadcrumb.Item>日志查询</Breadcrumb.Item>
+          <Breadcrumb.Item>WT-SERVER</Breadcrumb.Item>
+          <Breadcrumb.Item>Find Logs</Breadcrumb.Item>
         </Breadcrumb>
         <Content
           style={{
@@ -267,12 +260,12 @@ class Home extends Component {
           }}
         >
           <Form {...layout}>
-            <Form.Item label='选择设备'>
+            <Form.Item label='your device'>
               {deviceId !== undefined ? (
                 <Select
                   showSearch
                   style={{ width: '20vw', marginRight: 15 }}
-                  placeholder='请选择设备id'
+                  placeholder='please select deviceid'
                   onChange={this.onChangeDeviceId}
                   onFocus={this.onFocusDeviceId}
                   onBlur={this.onBlurDeviceId}
@@ -288,12 +281,12 @@ class Home extends Component {
                 </Select>
               ) : null}
             </Form.Item>
-            <Form.Item label='日志搜索'>
+            <Form.Item label='search logs'>
               <Search
                 style={{ width: '35vw', marginBottom: 15 }}
-                placeholder='全局搜索'
+                placeholder='keywords'
                 loading={!data}
-                enterButton={'搜索'}
+                enterButton={'search'}
                 onChange={this.onChangeSearch}
               />
             </Form.Item>
@@ -329,25 +322,6 @@ class Home extends Component {
             ) : (
               <Spin />
             )}
-            {/* {loadingNum ? <List
-              itemLayout='horizontal'
-              dataSource={Array.from({ length: 100 }, (v, k) => k).slice(0, 4)}
-              size='small'
-              renderItem={item => {
-                return (
-                  <div
-                    key={item}
-                    style={{
-                      borderBottom: 'solid 1px rgb(232 232 232)',
-                      paddingBottom: 15,
-                      paddingLeft: 15
-                    }}
-                  >
-                    <Skeleton paragraph={{ rows: 2 }} />
-                  </div>
-                )
-              }}
-            /> : null} */}
           </div>
         </Content>
       </Layout>
